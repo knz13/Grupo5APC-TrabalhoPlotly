@@ -43,7 +43,7 @@ def AugustoECatlen():
     grafico.update_layout(title="Homicídios por Arma de Fogo x Ano", xaxis_title="Ano", yaxis_title="Homicídios",
                           legend_title="Sexo", hovermode="x unified")
 
-    py.plot(grafico)
+    return grafico
 
 def OtavioECaio():
     def SepararEmAnosETipos(lista_arquivo):
@@ -131,12 +131,12 @@ def OtavioECaio():
     grafico.update_layout(title="Tipos de Crime x Ano no Brasil", xaxis_title="Ano", yaxis_title="Ocorrências",
                           legend_title="Tipo", hovermode="x unified")
 
-    py.plot(grafico)
+    return grafico
 
 def LarissaELeticia():
-    data1 = pandas.read_csv("bd/vitimas.csv", sep=";")
+    data1 = pandas.read_csv("vitimas.csv", sep=";")
     data1_array = data1.values
-    data2 = pandas.read_csv("bd/regioesbrasileiras.csv", sep=";")
+    data2 = pandas.read_csv("regioesbrasileiras.csv", sep=";")
     data2_array = data2.values
 
     uf = []
@@ -185,9 +185,9 @@ def LarissaELeticia():
                                                "rgb(251, 209, 186)", "rgb(126, 184, 215)", "rgb(5, 48, 97)",
                                                "rgb(217, 233, 241)"]
                       )
-    py.plot(fig)
+    return fig
 
-def Carol():
+def CarolEQuirino():
     per = []
     val = []
     per1 = []
@@ -223,7 +223,66 @@ def Carol():
     fig.update_xaxes(title='Ano', visible=True)
 
     fig.update_layout(barmode='group', xaxis_tickangle=-45)
-    py.plot(fig)
+    return fig
+
+def AnaEGuilherme():
+    # criando os data frames
+    df1 = pandas.read_excel("indicadoressegurancapublicauf.xlsx")
+    df2 = pandas.read_csv("regioesbrasileiras.csv", sep=";")
+
+    # transformando os data frames em listas
+    data1 = df1.values.tolist()
+    data2 = df2.values.tolist()
+
+    crime = []
+    ocorrencias = []
+
+    # coloca os elementos anteriores a 2021 em listas por categoria
+    for linha in data1:
+        if linha[2] != 2021:
+            crime.append(linha[1])
+            ocorrencias.append(linha[4])
+
+    # transformando os estados em regiões
+    regiao = []
+    for c in range(0, len(data2)):
+        if data2[c][1] not in regiao:
+            regiao.append(data2[c][1])
+
+    # criando uma tabela com a região
+    uf = []
+    for c in range(0, len(data2)):
+        for d in range(0, len(data1)):
+            if data1[d][2] != 2021:
+                if data2[c][1] == data1[d][0]:
+                    uf.append(data2[c][0])
+
+    crime = ["Estupro" if value == "Estupro" else value for value in crime]
+    crime = ["Furto de veículo" if value == "Furto de veículo" else value for value in crime]
+    crime = ["Homicídio doloso" if value == "Homicídio doloso" else value for value in crime]
+    crime = ["Lesão Corp. seg. morte" if value == "Lesão corporal seguida de morte" else value for value in crime]
+    crime = ["Roubo a instituição financeira" if value == "Roubo a instituição financeira" else value for value in
+             crime]
+    crime = ["Roubo de carga" if value == "Roubo de carga" else value for value in crime]
+    crime = ["Roubo de veículo" if value == "Roubo de veículo" else value for value in crime]
+    crime = ["Latrocínio" if value == "Roubo seguido de morte (latrocínio)" else value for value in crime]
+    crime = ["Tentativa de homicídio" if value == "Tentativa de homicídio" else value for value in crime]
+
+    # grafico
+
+    df = pandas.DataFrame(
+        dict(regioes=uf, crimes=crime, ocorrencias=ocorrencias)
+    )
+
+    fig = px.sunburst(df, path=['regioes', 'crimes'], values='ocorrencias',title="Crimes Brasil 2015 - 2020")
+
+    fig.update_layout(
+        height=1000,
+    )
+
+    return fig
 
 
-Carol()
+grafico = AnaEGuilherme()
+
+py.plot(grafico)
