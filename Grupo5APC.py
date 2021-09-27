@@ -2,6 +2,7 @@ import plotly.express as px
 import plotly.offline as py
 import plotly.graph_objects as go
 import pandas
+import plotly.subplots
 
 
 def AugustoECatlen():
@@ -189,9 +190,11 @@ def LarissaELeticia():
 def Carol():
     per = []
     val = []
-    # print('teste')
+    per1 = []
+    val1 = []
+
     with open("./homicidios-negros.csv") as f:
-        f.readline();
+        f.readline()
 
         linhas = f.readlines()
         for linha in linhas:
@@ -200,14 +203,27 @@ def Carol():
             per.append(int(linha[2]))
             val.append(int(linha[3]))
 
-    print(per)
-    print(val)
-
-    fig = px.bar(x=per, y=val, title="Homicidios de negros no Brasil")
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=per, y=val, name='Homicidios de negros', marker=dict(color="darkgrey")))
     fig.update_yaxes(title='Qtde Mortes', visible=True)
     fig.update_xaxes(title='Ano', visible=True)
 
+    with open("./homicidios-nao-negros.csv") as f:
+        f.readline()
+
+        linhas = f.readlines()
+        for linha in linhas:
+            linha = linha.replace('\n', '')
+            linha = linha.split(';')
+            per1.append(int(linha[2]))
+            val1.append(int(linha[3]))
+
+    fig.add_trace(go.Bar(x=per1, y=val1, name='Homicidios nao negros', marker=dict(color="darkgrey")))
+    fig.update_yaxes(title='Qtde Mortes', visible=True)
+    fig.update_xaxes(title='Ano', visible=True)
+
+    fig.update_layout(barmode='group', xaxis_tickangle=-45)
     py.plot(fig)
 
 
-OtavioECaio()
+Carol()
