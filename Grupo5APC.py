@@ -1,3 +1,6 @@
+import dash
+from dash import dcc
+from dash import html
 import plotly.express as px
 import plotly.offline as py
 import plotly.graph_objects as go
@@ -71,8 +74,7 @@ def OtavioECaio():
         lista_ocorrencias_por_tipo_de_crime = []  # essa conterá as ocorrências.
 
         for tipoCrime in lista_tipos_de_crimes:
-            lista_ano_por_tipo_de_crime.append(
-                lista_anos)  # aqui estamos adicionando todos os anos em que ocorreram esse crime.
+            lista_ano_por_tipo_de_crime.append(lista_anos)  # aqui estamos adicionando todos os anos em que ocorreram esse crime.
             lista_ocorrencias_vazia = []
 
             # vamos preencher essa lista vazia com zeros para podermos adicionar as ocorrências logo logo.
@@ -83,8 +85,8 @@ def OtavioECaio():
             lista_ocorrencias_por_tipo_de_crime.append(lista_ocorrencias_vazia)
 
         #Agora ja temos as listas separadas dessa forma:
-        # lista_ano_por_tipo_de_crime = {[[2015, 2016, 2017, 2018, 2019, 2020, 2021], [2015, 2016, 2017, 2018, 2019, 2020, 2021],[...]}
-        # lista ocorrencias_por_tipo_de_crime = {[[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0],[...]]}
+        # lista_ano_por_tipo_de_crime = [[2015, 2016, 2017, 2018, 2019, 2020, 2021], [2015, 2016, 2017, 2018, 2019, 2020, 2021],[...]]
+        # lista ocorrencias_por_tipo_de_crime = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0],[...]]
 
         #Agora vamos preencher a lista com as ocorrencias.
         for linha in lista_arquivo:
@@ -243,46 +245,55 @@ def AnaEGuilherme():
             crime.append(linha[1])
             ocorrencias.append(linha[4])
 
-    # transformando os estados em regiões
-    regiao = []
-    for c in range(0, len(data2)):
-        if data2[c][1] not in regiao:
-            regiao.append(data2[c][1])
-
     # criando uma tabela com a região
-    uf = []
-    for c in range(0, len(data2)):
-        for d in range(0, len(data1)):
-            if data1[d][2] != 2021:
-                if data2[c][1] == data1[d][0]:
-                    uf.append(data2[c][0])
-
-    crime = ["Estupro" if value == "Estupro" else value for value in crime]
-    crime = ["Furto de veículo" if value == "Furto de veículo" else value for value in crime]
-    crime = ["Homicídio doloso" if value == "Homicídio doloso" else value for value in crime]
-    crime = ["Lesão Corp. seg. morte" if value == "Lesão corporal seguida de morte" else value for value in crime]
-    crime = ["Roubo a instituição financeira" if value == "Roubo a instituição financeira" else value for value in
-             crime]
-    crime = ["Roubo de carga" if value == "Roubo de carga" else value for value in crime]
-    crime = ["Roubo de veículo" if value == "Roubo de veículo" else value for value in crime]
-    crime = ["Latrocínio" if value == "Roubo seguido de morte (latrocínio)" else value for value in crime]
-    crime = ["Tentativa de homicídio" if value == "Tentativa de homicídio" else value for value in crime]
+    regiao = []
+    for c in range(0, len(data2)):  # percorrendo o data2
+        for d in range(0, len(data1)):  # percorrendo o data1
+            if data1[d][2] != 2021:  # o d corresponde a coluna, data1[d][2] = ano
+                if data2[c][1] == data1[d][0]:  # comparando o nome do estado no data2 com o nome do estado no data1
+                    regiao.append(
+                        data2[c][0])  # adiciona na lista 'regiao' o nome da região correspondente àquele estado
 
     # grafico
 
     df = pandas.DataFrame(
-        dict(regioes=uf, crimes=crime, ocorrencias=ocorrencias)
+        dict(regioes=regiao, crimes=crime, ocorrencias=ocorrencias)  # informações que estarão no gráfico
     )
 
-    fig = px.sunburst(df, path=['regioes', 'crimes'], values='ocorrencias',title="Crimes Brasil 2015 - 2020")
+    # as ocorrencias são os valores tanto das regiões, quanto dos crimes
+    # o path é utilizado para atribuir os valores (as ocorrencias) para 'regioes' e 'crimes'
+
+    fig = px.sunburst(df, path=['regioes', 'crimes'], values='ocorrencias')
 
     fig.update_layout(
-        height=1000,
+        height=500,  # tamanho do gráfico em px
+        title={"text": "Crimes no Brasil entre 2015 e 2020"}  # título
     )
 
     return fig
 
 
-grafico = AnaEGuilherme()
 
-py.plot(grafico)
+
+
+
+#grafico = AnaEGuilherme()
+
+#py.plot(grafico)
+
+#app = dash.Dash(__name__)
+#app.layout = html.Div(children=[
+#    html.H1(children="Graficos Do Nosso Grupo"),
+#    dcc.Dropdown(
+#        options=[
+#            {"label" : "Otavio e Caio","value":"OC"},
+#            {"label" : "Augusto e Catlen","value":"AC"},
+#            {"label" : "Larissa e Letícia","value":"LL"},
+#            {"label" : "Carol e Quirino","value":"CQ"},
+#            {"label" : "Ana e Guilherme","value":"AG"}
+#        ]
+#    )
+#
+#])
+#
+#app.run_server(debug=True)
