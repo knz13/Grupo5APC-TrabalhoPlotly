@@ -1,6 +1,7 @@
 import dash
 from dash import dcc
 from dash import html
+from dash.dependencies import Input,Output
 import plotly.express as px
 import plotly.offline as py
 import plotly.graph_objects as go
@@ -49,32 +50,34 @@ def AugustoECatlen():
     return grafico
 
 def OtavioECaio():
+    # Para facilitar na hora de fazer o grafico fazemos uma funcao que ira retornar listas com os tipos de crimes, tipos de cimes por ano e ocorrencias por tipo de crimepor ano
     def SepararEmAnosETipos(lista_arquivo):
         lista_tipos_de_crimes = []
         lista_anos = []
 
-        # primeiro vamos passar pelo arquivo inteiro e pegar os tipos de crimes e os anos registrados.
+        # primeiro vamos abrir listas com o que queremos e vamos abrir listas contendo os tipos de crimes e os anos que estao no arquivo
         for linha in lista_arquivo:
             ano = int(linha[2])
             tipoCrime = linha[1]
 
-            # caso o tipo de crime ainda não esteja na lista ou ele seja furto de veículo,não vamos adicionar
+            # esse if é pra excluirmos o crime Furto de veiculo e nao ficarmos repetindo os Tipos
             if tipoCrime not in lista_tipos_de_crimes and tipoCrime != "Furto de veículo":
                 lista_tipos_de_crimes.append(tipoCrime)
 
-            # caso o ano não esteja na lista dos anos, nós adicionaremos a ela.
+            # esse é pra nao repetir o ano
             if ano not in lista_anos:
                 lista_anos.append(ano)
 
-        # vamos reverter a lista dos anos pois ela estava em ordem decrescente.
+        # vamos reverter a lista dos anos pois ela estava em ordem crescente(decorrencia do arquivo)
         lista_anos.reverse()
 
-        # agora vamos criar duas listas em que colocaremos uma lista para cada tipo de crime
+        # até entao tinhamos listas com termos, agora vamos fazer uma lista de listas para colocar todos os crimes em uma só variavel
         lista_ano_por_tipo_de_crime = []  # essa conterá os anos.
         lista_ocorrencias_por_tipo_de_crime = []  # essa conterá as ocorrências.
 
         for tipoCrime in lista_tipos_de_crimes:
-            lista_ano_por_tipo_de_crime.append(lista_anos)  # aqui estamos adicionando todos os anos em que ocorreram esse crime.
+            lista_ano_por_tipo_de_crime.append(
+                lista_anos)  # aqui estamos adicionando todos os anos em que ocorreram esse crime
             lista_ocorrencias_vazia = []
 
             # vamos preencher essa lista vazia com zeros para podermos adicionar as ocorrências logo logo.
@@ -84,52 +87,56 @@ def OtavioECaio():
             # agora adicionamos ela na lista de ocorrencias por tipo de crime.
             lista_ocorrencias_por_tipo_de_crime.append(lista_ocorrencias_vazia)
 
-        #Agora ja temos as listas separadas dessa forma:
+        # Agora ja temos as listas separadas dessa forma:
+        #                                todos os anos que ocorreram o 1 crime         todos os anos que ocorreram o 2 crime     ...
         # lista_ano_por_tipo_de_crime = [[2015, 2016, 2017, 2018, 2019, 2020, 2021], [2015, 2016, 2017, 2018, 2019, 2020, 2021],[...]]
-        # lista ocorrencias_por_tipo_de_crime = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0],[...]]
+        #  lista ocorrencias_por_tipo_de_crime = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0],[...]]
+        #                            ocorrencias por ano pro 1 crime      ocorr. por ano pro 2 crime       ...
 
-        #Agora vamos preencher a lista com as ocorrencias.
+        # Agora vamos preencher a lista com as ocorrencias.
         for linha in lista_arquivo:
             tipoCrime = linha[1]
             ano = int(linha[2])
             ocorrencias = int(linha[4])
 
-            #usamos a proxima linha para não contarmos o furto de veículo na nossa lista.
+            # usamos a proxima linha para não contarmos o furto de veículo na nossa lista.
             if (tipoCrime != "Furto de veículo"):
+                # aqui estamos adicionando na lista de ocorrencia relacionada ao crime que estamos analisando e no ano em que estamos analisando.
+                lista_ocorrencias_por_tipo_de_crime[lista_tipos_de_crimes.index(tipoCrime)][
+                    lista_anos.index(ano)] += ocorrencias
 
-                #aqui estamos adicionando na lista de ocorrencia relacionada ao crime que estamos analisando e no ano em que estamos analisando.
-                lista_ocorrencias_por_tipo_de_crime[lista_tipos_de_crimes.index(tipoCrime)][lista_anos.index(ano)] += ocorrencias
-
-        #dessa forma, a lista com as ocorrencias terminaria mais ou menos assim:
+        # dessa forma, a lista com as ocorrencias terminaria mais ou menos assim:
         #
         #                                       (nota-se que a cada lista é relacionada a um crime diferente)
         # lista_ocorrencias_por_tipo_de_crime = {[[43574, 46770, 50502, 53221, 53765, 47533, 16791], [49627, 51645, 53380, 46321, 37835, 40594, 13162], [723, 782, 997, 906, 851, 730, 176],[...]}
 
-
         return lista_tipos_de_crimes, lista_ano_por_tipo_de_crime, lista_ocorrencias_por_tipo_de_crime
 
-    #aqui começa o codigo.
+    # ate agr fizemos uma funcao que retorna 3 listas quando dado uma base de dados do tipo lista de listas
+    # agr vamos aplicar a funcao e fazer o grafico com os dados trabalhados
 
     arquivo = pandas.read_excel("indicadoressegurancapublicauf.xlsx")
 
+    # aqui transforma o arquivo em uma lista de listas, onde cada linha é uma lista
     lista_arquivo = arquivo.values
 
+    # Ultilizando dos dados da data base fazemos 3 listas com a funcao criada
     lista_tipos_de_crime, lista_anos_por_tipo_de_crime, lista_ocorrencias_por_tipo_de_crime = SepararEmAnosETipos(
         lista_arquivo)
 
-    #vamos iniciar o gráfico após a separação do arquivo em suas listas que nos interessam.
+    # Para construir o grafico vamos criar um grafico em branco e ir adicionando linha por linha em relacao aos crimes utilizando um for para passar em cada crime na lista tipoCrime
 
     grafico = go.Figure()
 
     index = 0
     for tipoCrime in lista_tipos_de_crime:
-        #adicionamos um scatter com o mode="markers+lines" para cada crime.
+        # adicionamos um scatter com o mode="markers+lines" para cada crime.
 
         grafico.add_scatter(x=lista_anos_por_tipo_de_crime[index], y=lista_ocorrencias_por_tipo_de_crime[index],
                             mode="markers+lines", name=tipoCrime)
         index += 1
 
-    #aqui fazemos o layout do gráfico.
+    # aqui fazemos o layout do gráfico.
     grafico.update_layout(title="Tipos de Crime x Ano no Brasil", xaxis_title="Ano", yaxis_title="Ocorrências",
                           legend_title="Tipo", hovermode="x unified")
 
@@ -206,7 +213,7 @@ def CarolEQuirino():
             val.append(int(linha[3]))
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=per, y=val, name='Homicidios de negros', marker=dict(color="darkgrey")))
+    fig.add_trace(go.Bar(x=per, y=val, name='Homicidios de negros', marker=dict(color="black")))
     fig.update_yaxes(title='Qtde Mortes', visible=True)
     fig.update_xaxes(title='Ano', visible=True)
 
@@ -241,9 +248,9 @@ def AnaEGuilherme():
 
     # coloca os elementos anteriores a 2021 em listas por categoria
     for linha in data1:
-        if linha[2] != 2021:
-            crime.append(linha[1])
-            ocorrencias.append(linha[4])
+        if linha[2] != 2021:  # linha[2] = ano
+            crime.append(linha[1])  # linha[1] = crime
+            ocorrencias.append(linha[4])  # linha[4] = ocorrencia
 
     # criando uma tabela com a região
     regiao = []
@@ -273,27 +280,40 @@ def AnaEGuilherme():
     return fig
 
 
+graficos = {
+    "OC":OtavioECaio(),
+    "AC":AugustoECatlen(),
+    "LL":LarissaELeticia(),
+    "CQ":CarolEQuirino(),
+    "AG":AnaEGuilherme()
+}
+
+colors = {
+    'background': '#111111',
+    'text': '#7FDBFF'
+}
+
+app = dash.Dash(__name__)
+app.layout = html.Div(style={'font-family':"Arial"},children=[
+    html.H1(children="Graficos Do Nosso Grupo"),
+    dcc.Dropdown(id="graph_dropdown",
+        options=[
+            {"label" : "Otavio e Caio","value":"OC"},
+            {"label" : "Augusto e Catlen","value":"AC"},
+            {"label" : "Larissa e Letícia","value":"LL"},
+            {"label" : "Carol e Quirino","value":"CQ"},
+            {"label" : "Ana e Guilherme","value":"AG"}
+        ],value="OC",searchable=False,style={'font-family':"Arial"},
+    ),
+        dcc.Graph(id="my_graph")
+])
+
+@app.callback(
+    Output("my_graph","figure"),
+    Input("graph_dropdown","value")
+)
+def createGraph(value):
+    return graficos[value]
 
 
-
-
-#grafico = AnaEGuilherme()
-
-#py.plot(grafico)
-
-#app = dash.Dash(__name__)
-#app.layout = html.Div(children=[
-#    html.H1(children="Graficos Do Nosso Grupo"),
-#    dcc.Dropdown(
-#        options=[
-#            {"label" : "Otavio e Caio","value":"OC"},
-#            {"label" : "Augusto e Catlen","value":"AC"},
-#            {"label" : "Larissa e Letícia","value":"LL"},
-#            {"label" : "Carol e Quirino","value":"CQ"},
-#            {"label" : "Ana e Guilherme","value":"AG"}
-#        ]
-#    )
-#
-#])
-#
-#app.run_server(debug=True)
+app.run_server(debug=True)
