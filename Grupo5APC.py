@@ -290,16 +290,23 @@ def AnaEGuilherme():
     return fig
 
 
+#cria o dash para fazer o layout
 app = dash.Dash(__name__)
 
 
+#definimos o layout com html.Div (Separa a página em pedacinhos)
 app.layout = html.Div([
+    #H1 é para o título da página.
     html.H1("Apresentação grupo 5"),
 
+        #separamos mais uma parte para cada gráfico
         html.Div(children=[
+            #dentro de cada parte, colocamos o gráfico desejado.
         dcc.Graph(figure=OtavioECaio()),
     
         ]),
+
+        #fazemos isso para todos os gráficos.
         html.Div(children=[
         dcc.Graph(figure=AnaEGuilherme()),
     
