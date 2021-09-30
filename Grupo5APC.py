@@ -1,3 +1,4 @@
+from typing import Callable
 import dash
 from dash import dcc
 from dash import html
@@ -9,47 +10,56 @@ import pandas
 import plotly.subplots
 
 
-def AugustoECatlen():
-    def SepararPorAno(lista_arquivo):
-        lista_com_os_anos = []
-        lista_mortes_por_ano = []
-
-        for coluna in lista_arquivo:
-            for linha in coluna:
-                ano = int(linha.split(";")[2])
-                if ano not in lista_com_os_anos:
-                    lista_com_os_anos.append(ano)
-                    lista_mortes_por_ano.append(0)
-
-        for coluna in lista_arquivo:
-            for linha in coluna:
-                ano = int(linha.split(";")[2])
-                mortes = (int(linha.split(';')[3]))
-                lista_mortes_por_ano[lista_com_os_anos.index(ano)] += mortes
-
-        return lista_mortes_por_ano, lista_com_os_anos
-
-    arquivo_homens = pandas.read_csv("homicidios-de-homens-por-armas-de-fogo-uf.csv")
-    arquivo_mulheres = pandas.read_csv("homicidios-de-mulheres-por-armas-de-fogo-uf.csv")
-
-    lista_homens = arquivo_homens.values
-    lista_mulheres = arquivo_mulheres.values
-
-    lista_homicidios_homens_por_ano, lista_anos_homens = SepararPorAno(lista_homens)
-    lista_homicidios_mulheres_por_ano, lista_anos_mulheres = SepararPorAno(lista_mulheres)
-
-    grafico = go.Figure()
-
-    grafico.add_scatter(x=lista_anos_homens, y=lista_homicidios_homens_por_ano, name="Homens", mode="lines")
-
-    grafico.add_scatter(x=lista_anos_mulheres, y=lista_homicidios_mulheres_por_ano, name="Mulheres", mode="lines")
-
-    grafico.update_layout(title="Homicídios por Arma de Fogo x Ano", xaxis_title="Ano", yaxis_title="Homicídios",
-                          legend_title="Sexo", hovermode="x unified")
+def AugustoECatlen(): # Objetivo: mostra os homicídios por arma de fogo por sexo nos anos de 2000 a 2019.
+    
+    def SepararPorAno(lista_arquivo): # Lista_arquivos recebe tudo que está em lista_homens (passagem por parâmetro)                                                                                                
+        lista_com_os_anos = []                                                                                                                                                                                      
+        lista_mortes_por_ano = []                                                                                                                                                                                   
+                                                                                                                                                                                                                    
+        for coluna in lista_arquivo:                                                                                                                                                                                
+            for linha in coluna:                   # "For" serve para percorrer todas as linhas da lista_arquivo                                                                                                    
+                ano = int(linha.split(";")[2])     # Variavel ano recebe o conteudo presente na posição [2]                                                                                                         
+                if ano not in lista_com_os_anos:   # Verifica se o ano já esta na lista_com_os_anos                                                                                                                 
+                    lista_com_os_anos.append(ano)  # Coloca o ano na lista_com_os_anos                                                                                                                              
+                    lista_mortes_por_ano.append(0) # Coloca o valor zero na lista_mortes_por_ano                                                                                                                    
+                                                                                                                                                                                                                    
+        for coluna in lista_arquivo:                                                                                                                                                                                
+            for linha in coluna:                                                                                                                                                                                    
+                ano = int(linha.split(";")[2])                               # Variavel ano recebe o conteudo presente na posição [2]                                                                               
+                mortes = (int(linha.split(';')[3]))                          # Variavel mortes recebe o conteudo presente na posição [3]                                                                            
+                lista_mortes_por_ano[lista_com_os_anos.index(ano)] += mortes # Soma todas as mortes que o ocorreram em um determinado ano e armazena esse valor na lista_mortes_por_ano                             
+                                                                                                                                                                                                                    
+        return lista_mortes_por_ano,lista_com_os_anos  # retorna as listas para a localização onde a função foi chamada                                                                                             
+            #   EXEMPLO:                                                                                                                                                                                            
+            #           lista_homicidios_homens_por_ano = lista_mortes_por_ano                                                                                                                                      
+            #           lista_anos_homens = lista_com_os_anos                                                                                                                                                       
+                                                                                                                                                                                                                    
+                                                                                                                                                                                                                    
+    arquivo_homens = pandas.read_csv("homicidios-de-homens-por-armas-de-fogo-uf.csv") # ler a tabela do excel (540 x 1)                                                                                             
+    arquivo_mulheres = pandas.read_csv("homicidios-de-mulheres-por-armas-de-fogo-uf.csv") # ler a tabela do excel (540 x 1)                                                                                         
+                                                                                                                                                                                                                    
+                                                                                                                                                                                                                    
+    lista_homens = arquivo_homens.values # tranformar tabela do excel em uma lista                                                                                                                                  
+    lista_mulheres = arquivo_mulheres.values # tranformar tabela do excel em uma lista                                                                                                                              
+                                                                                                                                                                                                                    
+                                                                                                                                                                                                                    
+    lista_homicidios_homens_por_ano,lista_anos_homens = SepararPorAno(lista_homens) # chama a função SepararPorAno                                                                                                  
+    lista_homicidios_mulheres_por_ano,lista_anos_mulheres = SepararPorAno(lista_mulheres)  # chama a função SepararPorAno                                                                                           
+                                                                                                                                                                                                                    
+    grafico = go.Figure()                                                                                                                                                                                           
+                                                                                                                                                                                                                    
+    grafico.add_scatter(x=lista_anos_homens,y=lista_homicidios_homens_por_ano,name="Homens",mode="lines")                                                                                                           
+                                                                                                                                                                                                                    
+    grafico.add_scatter(x=lista_anos_mulheres,y=lista_homicidios_mulheres_por_ano,name="Mulheres",mode="lines")                                                                                                     
+                                                                                                                                                                                                                    
+    grafico.update_layout(title="Homicídios por Arma de Fogo x Ano",xaxis_title="Ano",yaxis_title="Homicídios",legend_title="Sexo",hovermode="x unified")                                                           
+                                                                                                                                                                                                                    
+                 
 
     return grafico
 
-def OtavioECaio():
+def OtavioECaio(): # Objetivo: mostra as mudanças no número de ocorrencias de crimes no anos 2015-2020.
+
     # Para facilitar na hora de fazer o grafico fazemos uma funcao que ira retornar listas com os tipos de crimes, tipos de cimes por ano e ocorrencias por tipo de crimepor ano
     def SepararEmAnosETipos(lista_arquivo):
         lista_tipos_de_crimes = []
@@ -188,7 +198,7 @@ def LarissaELeticia():
     # dicionario do banco de dados a ser usado, cada um representa uma lista
     dados = dict(crime=crime, ano=ano, regiao=regiao, uf=uf, genero=genero, vitimas=vitimas)
     # grafico, o path mostra a ordem hierárquica do gráfico, a primeiro é o nível um
-    fig = px.sunburst(dados, path=['crime', 'regiao', 'ano', 'genero'], values='vitimas',
+    fig = px.sunburst(dados, path=['crime', 'regiao', 'ano', 'genero'], values='vitimas',title="Crimes 2015-2020 x sexo",
                       color='ano',
                       color_discrete_sequence=["rgb(217, 233, 241)", "rgb(247, 182, 152)", "rgb(127, 8, 35)",
                                                "rgb(251, 209, 186)", "rgb(126, 184, 215)", "rgb(5, 48, 97)",
@@ -231,7 +241,7 @@ def CarolEQuirino():
     fig.update_yaxes(title='Qtde Mortes', visible=True)
     fig.update_xaxes(title='Ano', visible=True)
 
-    fig.update_layout(barmode='group', xaxis_tickangle=-45)
+    fig.update_layout(barmode='group', xaxis_tickangle=-45,title="Quantidade de homicídios de negros e não negros - 1996-2020")
     return fig
 
 def AnaEGuilherme():
@@ -280,40 +290,34 @@ def AnaEGuilherme():
     return fig
 
 
-graficos = {
-    "OC":OtavioECaio(),
-    "AC":AugustoECatlen(),
-    "LL":LarissaELeticia(),
-    "CQ":CarolEQuirino(),
-    "AG":AnaEGuilherme()
-}
-
-colors = {
-    'background': '#111111',
-    'text': '#7FDBFF'
-}
-
 app = dash.Dash(__name__)
-app.layout = html.Div(style={'font-family':"Arial"},children=[
-    html.H1(children="Graficos Do Nosso Grupo"),
-    dcc.Dropdown(id="graph_dropdown",
-        options=[
-            {"label" : "Otavio e Caio","value":"OC"},
-            {"label" : "Augusto e Catlen","value":"AC"},
-            {"label" : "Larissa e Letícia","value":"LL"},
-            {"label" : "Carol e Quirino","value":"CQ"},
-            {"label" : "Ana e Guilherme","value":"AG"}
-        ],value="OC",searchable=False,style={'font-family':"Arial"},
-    ),
-        dcc.Graph(id="my_graph")
+
+
+app.layout = html.Div([
+    html.H1("Apresentação grupo 5"),
+
+        html.Div(children=[
+        dcc.Graph(figure=OtavioECaio()),
+    
+        ]),
+        html.Div(children=[
+        dcc.Graph(figure=AnaEGuilherme()),
+    
+        ]),
+        html.Div(children=[
+        dcc.Graph(figure=AugustoECatlen()),
+    
+        ]),
+        html.Div(children=[
+        dcc.Graph(figure=CarolEQuirino()),
+    
+        ]),
+        html.Div(children=[
+        dcc.Graph(figure=LarissaELeticia()),
+    
+        ]),
+        
 ])
 
-@app.callback(
-    Output("my_graph","figure"),
-    Input("graph_dropdown","value")
-)
-def createGraph(value):
-    return graficos[value]
 
-
-app.run_server(debug=True)
+app.run_server()
