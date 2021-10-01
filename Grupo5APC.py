@@ -146,7 +146,7 @@ def OtavioECaio(): # Objetivo: mostra as mudanças no número de ocorrencias de 
         index += 1
 
     # aqui fazemos o layout do gráfico.
-    grafico.update_layout(title="Tipos de Crime x Ano no Brasil", xaxis_title="Ano", yaxis_title="Ocorrências",
+    grafico.update_layout(title="Tipos de Crime x Ano no Brasil 2015 x 2020", xaxis_title="Ano", yaxis_title="Ocorrências",
                           legend_title="Tipo", hovermode="x unified")
 
     return grafico
@@ -320,7 +320,6 @@ app.layout = html.Div([
             #dentro de cada parte, colocamos o gráfico desejado.
         dcc.Graph(figure=OtavioECaio()),
         ]),
-
         #fazemos isso para todos os gráficos.
         html.Div(children=[
         dcc.Graph(figure=AnaEGuilherme()),
