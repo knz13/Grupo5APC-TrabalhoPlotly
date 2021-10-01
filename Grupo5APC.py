@@ -152,9 +152,9 @@ def OtavioECaio(): # Objetivo: mostra as mudanças no número de ocorrencias de 
     return grafico
 
 def LarissaELeticia():
-    data1 = pandas.read_csv("bd/vitimas.csv", sep=";")  # ---------- lê a base de dados e armazena na variável
+    data1 = pandas.read_csv("vitimas.csv", sep=";")  # ---------- lê a base de dados e armazena na variável
     data1_array = data1.values  # ---------- lê e armazena cada linha da base de dados como uma lista
-    data2 = pandas.read_csv("bd/regioesbrasileiras.csv", sep=";")
+    data2 = pandas.read_csv("regioesbrasileiras.csv", sep=";")
     data2_array = data2.values
 
     uf = []
@@ -222,7 +222,7 @@ def CarolEQuirino():
     val1 = []
 
     # Aqui estamos abrindo o arquivo de base de dados de homicidios de pessoas negras
-    with open("./homicidios-negros.csv") as f:
+    with open("homicidios-negros.csv") as f:
         f.readline()
         # Aqui abrimos as linhas, passamos um laço para prucurar as colunas 2 e 3
         linhas = f.readlines()
@@ -239,7 +239,7 @@ def CarolEQuirino():
     fig.update_xaxes(title='Ano', visible=True)  # aqui renomeamos o eixo X
 
     # aqui estamos abrindo o arquivo de base de dados de homicidios de pessoas não negras
-    with open("./homicidios-nao-negros.csv") as f:
+    with open("homicidios-nao-negros.csv") as f:
         f.readline()
         # Aqui abrimos as linhas, passamos um laço para prucurar as colunas 2 e 3
         linhas = f.readlines()
@@ -319,7 +319,6 @@ app.layout = html.Div([
         html.Div(children=[
             #dentro de cada parte, colocamos o gráfico desejado.
         dcc.Graph(figure=OtavioECaio()),
-    
         ]),
 
         #fazemos isso para todos os gráficos.
