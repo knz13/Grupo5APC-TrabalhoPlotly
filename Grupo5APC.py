@@ -152,9 +152,9 @@ def OtavioECaio(): # Objetivo: mostra as mudanças no número de ocorrencias de 
     return grafico
 
 def LarissaELeticia():
-    data1 = pandas.read_csv("vitimas.csv", sep=";")
-    data1_array = data1.values
-    data2 = pandas.read_csv("regioesbrasileiras.csv", sep=";")
+    data1 = pandas.read_csv("bd/vitimas.csv", sep=";")  # ---------- lê a base de dados e armazena na variável
+    data1_array = data1.values  # ---------- lê e armazena cada linha da base de dados como uma lista
+    data2 = pandas.read_csv("bd/regioesbrasileiras.csv", sep=";")
     data2_array = data2.values
 
     uf = []
@@ -164,83 +164,100 @@ def LarissaELeticia():
     vitimas = []
     regiaos = []
     ufreg = []
-    # separando cada coluna em listas
+    # separando cada coluna a ser usada da base de dados em listas
+    # ordem das listas [uf, crime, ano, mês, genero, vitimas]
+    #                   0     1     2    3     4        5
     for linha in data1_array:
-        # para não pegar o ano de 2020
+        # para não pegar o ano de 2021
         if linha[2] != 2021:
             uf.append(linha[0])
             crime.append(linha[1])
             ano.append(linha[2])
             genero.append(linha[4])
             vitimas.append(linha[5])
-    # saparando os estados e regiões
+
+    # separando as regiões e estados respectivos em listas
     for linha in data2_array:
-        # para não pegar o ano de 2020
         regiaos.append(linha[0])
         ufreg.append(linha[1])
 
-    # definindo as regioes dos estados da base de dados com os crimes
+    # definindo de qual regiao é cada estado da lista uf
     regiao = []
-    for j in uf:
+    for j in uf:  # loop para passar por cada estado da lista uf
         count = 0
-        for k in ufreg:
-            if j == k:
-                regiao.append(regiaos[count])
-            count += 1
+        for k in ufreg:  # loop para passar por cada estado da lista ufreg
+            if j == k:  # vai comparar se o estado da lista uf é igual ao estado da lista ufreg
+                regiao.append(regiaos[count])  # se forem iguais, vai adicionar a regiao que esta na mesma posição
+            count += 1  # que o estado ufreg a uma nova lista contendo todas as regioes,
+            # a posição na lista esta sendo definida pelo contador
 
-    # mudando para nomes mais menores
-    ano = list(map(str, ano))
+    ano = list(map(str, ano))  # muda a lista de anos de inteiro para string, pois para o gráfico precisa ser strings
+
+    # mudando alguns itens da lista para nomes menores
+    # percorre os itens da lista, aqueles em que o if for verdadeiro ele troca pelo novo valor informado (informação antes do if)
     crime = ["Ls. Cp. sg. Morte" if value == "Lesão corporal seguida de morte" else value for value in crime]
     crime = ["Latrocínio" if value == "Roubo seguido de morte (latrocínio)" else value for value in crime]
     genero = ["Sexo NI" if value == "Não informado" or value == "Sem Informação" else value for value in genero]
 
-    # dicionario do banco de dados a ser usado, cada um representa uma lista
-    dados = dict(crime=crime, ano=ano, regiao=regiao, uf=uf, genero=genero, vitimas=vitimas)
-    # grafico, o path mostra a ordem hierárquica do gráfico, a primeiro é o nível um
-    fig = px.sunburst(dados, path=['crime', 'regiao', 'ano', 'genero'], values='vitimas',title="Crimes 2015-2020 x sexo",
-                      color='ano',
+    # dicionario do banco de dados a ser usado no gráfico, cada um representa uma lista criada
+    dados = dict(crime=crime, ano=ano, regiao=regiao, genero=genero, vitimas=vitimas)
+
+    # grafico, o path mostra a ordem hierárquica do gráfico, o primeiro é o nível um, o segundo o nível dois,...
+    # o segundo nível está dentro do primeiro, o terceiro dentro do segundo que está dentro do primeiro,...
+    # o path vai percorrer toda a lista informada e juntar todos os iguais e seus respectivos valores
+    fig = px.sunburst(dados, path=['crime', 'regiao', 'ano', 'genero'], values='vitimas',
+                      color='ano',  # define que a cor do nível que está o ano será mudada
                       color_discrete_sequence=["rgb(217, 233, 241)", "rgb(247, 182, 152)", "rgb(127, 8, 35)",
                                                "rgb(251, 209, 186)", "rgb(126, 184, 215)", "rgb(5, 48, 97)",
-                                               "rgb(217, 233, 241)"]
+                                               "rgb(217, 233, 241)"]  # define a ordem das cores a serem mudadas
                       )
+
     return fig
 
 def CarolEQuirino():
+    # aqui colocamos as listas para os valores e os periodos dos graficos
     per = []
     val = []
     per1 = []
     val1 = []
 
+    # Aqui estamos abrindo o arquivo de base de dados de homicidios de pessoas negras
     with open("./homicidios-negros.csv") as f:
         f.readline()
-
+        # Aqui abrimos as linhas, passamos um laço para prucurar as colunas 2 e 3
         linhas = f.readlines()
         for linha in linhas:
-            linha = linha.replace('\n', '')
-            linha = linha.split(';')
+            linha = linha.replace('\n', '')  # é inserido um espaçamento dentro da string
+            linha = linha.split(';')  # Atribuir os valores da lista a variáveis diferentes
             per.append(int(linha[2]))
             val.append(int(linha[3]))
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=per, y=val, name='Homicidios de negros', marker=dict(color="black")))
-    fig.update_yaxes(title='Qtde Mortes', visible=True)
-    fig.update_xaxes(title='Ano', visible=True)
+    fig.add_trace(go.Bar(x=per, y=val, name='Homicidios de negros',
+                         marker=dict(color='black')))  # aqui especificamos a cor e o tipo de grafico
+    fig.update_yaxes(title='Qtde Mortes', visible=True)  # aqui renomeamos o eixo Y
+    fig.update_xaxes(title='Ano', visible=True)  # aqui renomeamos o eixo X
 
+    # aqui estamos abrindo o arquivo de base de dados de homicidios de pessoas não negras
     with open("./homicidios-nao-negros.csv") as f:
         f.readline()
-
+        # Aqui abrimos as linhas, passamos um laço para prucurar as colunas 2 e 3
         linhas = f.readlines()
         for linha in linhas:
-            linha = linha.replace('\n', '')
-            linha = linha.split(';')
+            linha = linha.replace('\n', '')  # é inserido um espaçamento dentro da string
+            linha = linha.split(';')  # Atribuir os valores da lista a variáveis diferentes
             per1.append(int(linha[2]))
             val1.append(int(linha[3]))
 
-    fig.add_trace(go.Bar(x=per1, y=val1, name='Homicidios nao negros', marker=dict(color="darkgrey")))
-    fig.update_yaxes(title='Qtde Mortes', visible=True)
-    fig.update_xaxes(title='Ano', visible=True)
+    fig.add_trace(go.Bar(x=per1, y=val1, name='Homicidios nao negros',
+                         marker=dict(color='darkgrey')))  # aqui especificamos a cor e o tipo de grafico
+    fig.update_yaxes(title='Qtde Mortes', visible=True)  # aqui renomeamos o eixo Y
+    fig.update_xaxes(title='Ano', visible=True)  # aqui renomeamos o eixo X
 
-    fig.update_layout(barmode='group', xaxis_tickangle=-45,title="Quantidade de homicídios de negros e não negros - 1996-2020")
+    fig.update_layout(barmode='group',
+                      xaxis_tickangle=-45)  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
+
+
     return fig
 
 def AnaEGuilherme():
