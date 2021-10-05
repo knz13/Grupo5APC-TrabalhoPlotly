@@ -317,12 +317,13 @@ app.layout = html.Div([
 
         #separamos mais uma parte para cada gráfico
         html.Div(children=[
-            dcc.Graph(figure=AnaEGuilherme()),
+            dcc.Graph(figure=OtavioECaio()),
         ]),
 
         html.Div(children=[
         #dentro de cada parte, colocamos o gráfico desejado.
-        dcc.Graph(figure=OtavioECaio()),
+
+        dcc.Graph(figure=AnaEGuilherme()),
         ]),
         #fazemos isso para todos os gráficos.
 
