@@ -1,12 +1,15 @@
 import dash
 from dash import dcc
 from dash import html
+#caso não funcione, comente as duas linhas superiores e descomente as duas linhas inferiores.
+#import dash_core_components as dcc
+#import dash_html_components as html
 from dash.dependencies import Input,Output
 import plotly.express as px
 import plotly.offline as py
 import plotly.graph_objects as go
 import pandas
-import plotly.subplots
+
 
 
 def AugustoECatlen(): # Objetivo: mostra os homicídios por arma de fogo por sexo nos anos de 2000 a 2019.
@@ -52,8 +55,6 @@ def AugustoECatlen(): # Objetivo: mostra os homicídios por arma de fogo por sex
     grafico.add_scatter(x=lista_anos_mulheres,y=lista_homicidios_mulheres_por_ano,name="Mulheres",mode="lines")                                                                                                     
                                                                                                                                                                                                                     
     grafico.update_layout(title="Homicídios por Arma de Fogo x Ano",xaxis_title="Ano",yaxis_title="Homicídios",legend_title="Sexo",hovermode="x unified")                                                           
-                                                                                                                                                                                                                    
-                 
 
     return grafico
 
@@ -70,12 +71,13 @@ def OtavioECaio(): # Objetivo: mostra as mudanças no número de ocorrencias de 
             tipoCrime = linha[1]
 
             # esse if é pra excluirmos o crime Furto de veiculo e nao ficarmos repetindo os Tipos
-            if tipoCrime not in lista_tipos_de_crimes and tipoCrime != "Furto de veículo":
+            if tipoCrime not in lista_tipos_de_crimes and tipoCrime != "Furto de veículo" and ano != 2021:
                 lista_tipos_de_crimes.append(tipoCrime)
 
             # esse é pra nao repetir o ano
-            if ano not in lista_anos:
+            if ano not in lista_anos and ano != 2021:
                 lista_anos.append(ano)
+
 
         # vamos reverter a lista dos anos pois ela estava em ordem crescente(decorrencia do arquivo)
         lista_anos.reverse()
@@ -90,16 +92,17 @@ def OtavioECaio(): # Objetivo: mostra as mudanças no número de ocorrencias de 
             lista_ocorrencias_vazia = []
 
             # vamos preencher essa lista vazia com zeros para podermos adicionar as ocorrências logo logo.
-            for i in lista_anos:
+            for ano in lista_anos:
                 lista_ocorrencias_vazia.append(0)
 
             # agora adicionamos ela na lista de ocorrencias por tipo de crime.
             lista_ocorrencias_por_tipo_de_crime.append(lista_ocorrencias_vazia)
 
+
         # Agora ja temos as listas separadas dessa forma:
         #                                todos os anos que ocorreram o 1 crime         todos os anos que ocorreram o 2 crime     ...
-        # lista_ano_por_tipo_de_crime = [[2015, 2016, 2017, 2018, 2019, 2020, 2021], [2015, 2016, 2017, 2018, 2019, 2020, 2021],[...]]
-        #  lista ocorrencias_por_tipo_de_crime = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0],[...]]
+        # lista_ano_por_tipo_de_crime = [[2015, 2016, 2017, 2018, 2019, 2020], [2015, 2016, 2017, 2018, 2019, 2020],[...]]
+        #  lista ocorrencias_por_tipo_de_crime = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0],[...]]
         #                            ocorrencias por ano pro 1 crime      ocorr. por ano pro 2 crime       ...
 
         # Agora vamos preencher a lista com as ocorrencias.
@@ -109,15 +112,14 @@ def OtavioECaio(): # Objetivo: mostra as mudanças no número de ocorrencias de 
             ocorrencias = int(linha[4])
 
             # usamos a proxima linha para não contarmos o furto de veículo na nossa lista.
-            if (tipoCrime != "Furto de veículo"):
+            if (tipoCrime != "Furto de veículo") and ano != 2021:
                 # aqui estamos adicionando na lista de ocorrencia relacionada ao crime que estamos analisando e no ano em que estamos analisando.
                 lista_ocorrencias_por_tipo_de_crime[lista_tipos_de_crimes.index(tipoCrime)][
                     lista_anos.index(ano)] += ocorrencias
-
         # dessa forma, a lista com as ocorrencias terminaria mais ou menos assim:
         #
         #                                       (nota-se que a cada lista é relacionada a um crime diferente)
-        # lista_ocorrencias_por_tipo_de_crime = {[[43574, 46770, 50502, 53221, 53765, 47533, 16791], [49627, 51645, 53380, 46321, 37835, 40594, 13162], [723, 782, 997, 906, 851, 730, 176],[...]}
+        # lista_ocorrencias_por_tipo_de_crime = {[[43574, 46770, 50502, 53221, 53765, 47533], [49627, 51645, 53380, 46321, 37835, 40599], [723, 782, 997, 906, 851, 730, 176],[...]}
 
         return lista_tipos_de_crimes, lista_ano_por_tipo_de_crime, lista_ocorrencias_por_tipo_de_crime
 
@@ -183,10 +185,10 @@ def LarissaELeticia():
 
     # definindo de qual regiao é cada estado da lista uf
     regiao = []
-    for j in uf:  # loop para passar por cada estado da lista uf
+    for estado in uf:  # loop para passar por cada estado da lista uf
         count = 0
-        for k in ufreg:  # loop para passar por cada estado da lista ufreg
-            if j == k:  # vai comparar se o estado da lista uf é igual ao estado da lista ufreg
+        for estado_reg in ufreg:  # loop para passar por cada estado da lista ufreg
+            if estado == estado_reg:  # vai comparar se o estado da lista uf é igual ao estado da lista ufreg
                 regiao.append(regiaos[count])  # se forem iguais, vai adicionar a regiao que esta na mesma posição
             count += 1  # que o estado ufreg a uma nova lista contendo todas as regioes,
             # a posição na lista esta sendo definida pelo contador
@@ -255,7 +257,7 @@ def CarolEQuirino():
     fig.update_xaxes(title='Ano', visible=True)  # aqui renomeamos o eixo X
 
     fig.update_layout(barmode='group',
-                      xaxis_tickangle=-45)  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
+                      xaxis_tickangle=-45,title="Homicídios de Negros x Não Negros")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
 
 
     return fig
@@ -278,7 +280,7 @@ def AnaEGuilherme():
             crime.append(linha[1])  # linha[1] = crime
             ocorrencias.append(linha[4])  # linha[4] = ocorrencia
 
-    # criando uma tabela com a região
+    # criando uma lista com a região
     regiao = []
     for c in range(0, len(data2)):  # percorrendo o data2
         for d in range(0, len(data1)):  # percorrendo o data1
@@ -289,9 +291,8 @@ def AnaEGuilherme():
 
     # grafico
 
-    df = pandas.DataFrame(
-        dict(regioes=regiao, crimes=crime, ocorrencias=ocorrencias)  # informações que estarão no gráfico
-    )
+    df = dict(regioes=regiao, crimes=crime, ocorrencias=ocorrencias)  # informações que estarão no gráfico
+
 
     # as ocorrencias são os valores tanto das regiões, quanto dos crimes
     # o path é utilizado para atribuir os valores (as ocorrencias) para 'regioes' e 'crimes'
