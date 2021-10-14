@@ -9,6 +9,7 @@ import plotly.express as px
 import plotly.offline as py
 import plotly.graph_objects as go
 import pandas
+import math
 
 #Aqui Pegamos Os Dados de Cada Dupla (ler e colocar os dados em uma forma mais trabalhável(dict))
 
@@ -239,21 +240,35 @@ def AugustoECatlen(dicionario): # Objetivo: mostra os homicídios por arma de fo
 
     return grafico
 
-def OtavioECaio(dicionarioCrimes,crimesEscolhidos=[]): # Objetivo: mostra as mudanças no número de ocorrencias de crimes no anos 2015-2020.
+def OtavioECaio(dicionarioCrimes,crimesEscolhidos=None,desejaLog=None): # Objetivo: mostra as mudanças no número de ocorrencias de crimes no anos 2015-2020.
 
     # Para construir o grafico vamos criar um grafico em branco e ir adicionando linha por linha em relacao aos crimes utilizando um for para passar em cada crime na lista tipoCrime
+
+    print(desejaLog)
+    if desejaLog != None and desejaLog != []:
+        dicionario_inicial = dicionarioCrimes
+        dicionario = {}
+
+        for tipo_crime in dicionario_inicial:
+            dicionario[tipo_crime] = {"ano":[],"ocorrencias":[]}
+            dicionario[tipo_crime]["ano"] = dicionario_inicial[tipo_crime]["ano"]
+            dicionario[tipo_crime]["ocorrencias"] = list(map(lambda a : math.log(a),dicionario_inicial[tipo_crime]["ocorrencias"]))
+
+        print(dicionario)
+    else:
+        dicionario = dicionarioCrimes
 
     grafico = go.Figure()
 
     index = 0
-    for tipoCrime in dicionarioCrimes:
-        if len(crimesEscolhidos) != 0:
+    for tipoCrime in dicionario:
+        if crimesEscolhidos != None and crimesEscolhidos != []:
             if tipoCrime in crimesEscolhidos:
-                grafico.add_scatter(x=dicionarioCrimes[tipoCrime]["ano"], y=dicionarioCrimes[tipoCrime]["ocorrencias"],
+                grafico.add_scatter(x=dicionario[tipoCrime]["ano"], y=dicionario[tipoCrime]["ocorrencias"],
                                         mode="markers+lines", name=tipoCrime)
             index += 1
         else:
-            grafico.add_scatter(x=dicionarioCrimes[tipoCrime]["ano"], y=dicionarioCrimes[tipoCrime]["ocorrencias"],
+            grafico.add_scatter(x=dicionario[tipoCrime]["ano"], y=dicionario[tipoCrime]["ocorrencias"],
                                 mode="markers+lines", name=tipoCrime)
             index += 1
 
@@ -373,10 +388,9 @@ def LayoutOtavioECaio(dados):
     for tipo in dados.keys():
         options.append({"label":tipo,"value":tipo})
     return dcc.Dropdown(id="dropdown_OC",
-        options=options,multi=True,searchable=False,placeholder="Escolha Um Crime"
-    )
+        options=options,multi=True,searchable=False,placeholder="Escolha Um Crime"),dcc.Checklist(id="checklist_OC",options=[{'label':'log','value':'LG'}])
 
-def LayoutCarolEQuirino():
+def LayoutCarolEQuirino(dados):
     return html.Div()
 
 def LayoutLarissaELeticia(dados):
@@ -390,7 +404,7 @@ def LayoutLarissaELeticia(dados):
         options=options,placeholder="Escolha Uma Região",multi=True,searchable=False
     )
 
-def LayoutAugustoECatlen():
+def LayoutAugustoECatlen(dados):
     return html.Div()
 
 
@@ -418,20 +432,22 @@ app.layout = html.Div(children=[
     html.Div(
         id="grafico_e_layout"
     )
-
 ])
 
 @app.callback(
     Output(component_id="grafico_e_layout",component_property="children"),
     Input(component_id="dropdown_escolha_grafico",component_property="value")
 )
+
+
 def CriarGraficoComButoes(value):
-    return [duplas[value]['layout'](duplas[value]['dados']),dcc.Graph(id="grafico_" + value,figure=duplas[value]['funcao_grafico'](duplas[value]['dados']))]
+    return [html.Div(children=duplas[value]['layout'](duplas[value]['dados'])),dcc.Graph(id="grafico_" + value,figure=duplas[value]['funcao_grafico'](duplas[value]['dados']))]
 
 @app.callback(
     Output(component_id="grafico_LL",component_property="figure"),
     Input(component_id="dropdown_LL",component_property="value")
 )
+
 def DropdownLL(value):
     if value == None:
         return duplas["LL"]['funcao_grafico'](duplas["LL"]["dados"])
@@ -440,13 +456,12 @@ def DropdownLL(value):
 
 @app.callback(
     Output(component_id="grafico_OC",component_property="figure"),
-    Input(component_id="dropdown_OC",component_property="value")
+    Input(component_id="dropdown_OC",component_property="value"),
+    Input(component_id="checklist_OC",component_property="value")
 )
-def DropdownOC(value):
-    if value == None:
-        return duplas["OC"]['funcao_grafico'](duplas["OC"]["dados"])
-    else:
-        return duplas["OC"]['funcao_grafico'](duplas["OC"]["dados"],value)
+def DropdownOC(tipoCrime,log):
+        return duplas["OC"]['funcao_grafico'](duplas["OC"]["dados"],tipoCrime,log)
+
 
 
 app.run_server(debug=True)
