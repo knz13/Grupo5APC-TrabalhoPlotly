@@ -1,0 +1,60 @@
+body{
+    font-family: sans-serif;
+    background-color: #1e2130;
+}
+h1, h2, h3, h4, h5, h6{
+    color: white;
+    font-family: open sans semi bold,sans-serif;
+}
+.app-header{
+    border-bottom: 3px;
+}
+
+.ana-linda{
+    margin: 5% 0 0 0.1%;
+    width: 99.8%;
+    background: #FFFFFF;
+}
+.abacate, .melao, .abacaxi, .maça, .anao{
+    background: #161A28;
+}
+
+.abacate{
+    position: absolute;
+    width: 50%;
+    border-radius: 10px;
+    transition: all 0.5s ease-in;
+    z-index:10;
+}
+.abacate:hover{
+    transform: scale(1.3);
+    margin-left: 15%;
+    position: absolute;
+    z-index:20;
+}
+.melao{
+    position: absolute;
+    width: 48%;
+    border-radius: 10px;
+    margin: 0 0 0 50.5%;
+    transition: all 0.5s ease-in;
+    z-index:10;
+}
+.melao:hover{
+    transform: scale(1.3);
+    margin-left: 30%;
+    position: absolute;
+    z-index:20;
+}
+.abacaxi{
+    position: absolute;
+    margin: 25% 0 0 25%;
+}
+.maça{
+    position: absolute;
+    margin: 25% 0 0 35%;
+}
+.anao{
+    position: absolute;
+    margin: 45% 0 0 45%;
+}

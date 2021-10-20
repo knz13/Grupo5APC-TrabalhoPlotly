@@ -455,11 +455,13 @@ def AnaEGuilherme( regiaoEscolhida=None):
     #return fig
 
 #adicionando as funções de cada grafico ao dicionario de duplas
-duplas["CQ"]["funcao_grafico"] = CarolEQuirino
-duplas["LL"]["funcao_grafico"] = LarissaELeticia
-duplas["OC"]["funcao_grafico"] = OtavioECaio
-duplas["AC"]["funcao_grafico"] = AugustoECatlen
-duplas["AG"]["funcao_grafico"] = AnaEGuilherme
+duplas = {
+    "CQ":{"dados":duplas["CQ"]["dados"],"funcao_grafico":CarolEQuirino},
+    "LL":{"dados":duplas["LL"]["dados"],"funcao_grafico":LarissaELeticia},
+    "OC":{"dados":duplas["OC"]["dados"],"funcao_grafico":OtavioECaio},
+    "AC":{"dados":duplas["AC"]["dados"],"funcao_grafico":AugustoECatlen},
+    "AG":{"dados":duplas["AG"]["dados"],"funcao_grafico":AnaEGuilherme},
+}
 
 
 #Aqui Fazemos O Layout De Cada Um:
@@ -511,11 +513,13 @@ def LayoutAnaEGuilherme():
 
 
 #adicionamos o layout de cada um ao dicionario das duplas
-duplas["CQ"]["layout"] = LayoutCarolEQuirino()
-duplas["LL"]["layout"] = LayoutLarissaELeticia()
-duplas["OC"]["layout"] = LayoutOtavioECaio()
-duplas["AC"]["layout"] = LayoutAugustoECatlen()
-duplas["AG"]["layout"] = LayoutAnaEGuilherme()
+duplas = {
+    "CQ":{"dados":duplas["CQ"]["dados"],"funcao_grafico":duplas["CQ"]["funcao_grafico"],"layout":LayoutCarolEQuirino()},
+    "LL":{"dados":duplas["LL"]["dados"],"funcao_grafico":duplas["LL"]["funcao_grafico"],"layout":LayoutLarissaELeticia()},
+    "OC":{"dados":duplas["OC"]["dados"],"funcao_grafico":duplas["OC"]["funcao_grafico"],"layout":LayoutOtavioECaio()},
+    "AC":{"dados":duplas["AC"]["dados"],"funcao_grafico":duplas["AC"]["funcao_grafico"],"layout":LayoutAugustoECatlen()},
+    "AG":{"dados":duplas["AG"]["dados"],"funcao_grafico":duplas["AG"]["funcao_grafico"],"layout":LayoutAnaEGuilherme()},
+}
 
 
 
@@ -536,6 +540,9 @@ app.layout = html.Div(
             html.Div(className='anao', children=[dcc.Graph(id="grafico_AG", figure=duplas["AG"]['funcao_grafico']()),duplas["AG"]["layout"]])
         ])
 ])
+
+
+
 
 @app.callback(
     Output(component_id="grafico_LL",component_property="figure"),
