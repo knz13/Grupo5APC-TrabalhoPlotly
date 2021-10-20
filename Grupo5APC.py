@@ -258,7 +258,6 @@ def OtavioECaio(crimesEscolhidos=None,desejaLog=None,anoEscolhido=None): # Objet
             for ocorrencia in dicionario[tipo_crime]["ocorrencias"]:
                 if dicionario[tipo_crime]["ano"][index] in anoEscolhido:
                     lista_ocorrencia.append(ocorrencia)
-
                 index+=1
 
 
@@ -382,6 +381,14 @@ def CarolEQuirino(EscolhaChecklist = []):
     dicionario = duplas["CQ"]["dados"]
 
     fig = go.Figure()
+
+    if len(EscolhaChecklist) == 0:
+        fig.add_trace(
+            go.Bar(x=dicionario["Negros"]["ano"], y=dicionario["Negros"]["homicidios"], name='Homicidios de negros',
+                   marker=dict(color='black')))  # aqui especificamos a cor e o tipo de grafico
+        fig.add_trace(go.Bar(x=dicionario["Não Negros"]["ano"], y=dicionario["Não Negros"]["homicidios"],
+                             name='Homicidios não negros',
+                             marker=dict(color='darkgrey')))  # aqui especificamos a cor e o tipo de grafico
 
     if "N" in EscolhaChecklist:
         fig.add_trace(
