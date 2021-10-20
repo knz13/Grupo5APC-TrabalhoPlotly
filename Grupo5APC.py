@@ -228,7 +228,7 @@ def OtavioECaio(crimesEscolhidos=None,desejaLog=None,anoEscolhido=None): # Objet
     y_axis_title="Ocorrências"
     if desejaLog != None and desejaLog != []:
         y_axis_title = "Ocorrências (log n)"
-        dicionario_inicial = dicionarioCrimes
+        dicionario_inicial = dicionarioCrimes.copy()
         dicionario = {}
 
         for tipo_crime in dicionario_inicial:
@@ -238,7 +238,7 @@ def OtavioECaio(crimesEscolhidos=None,desejaLog=None,anoEscolhido=None): # Objet
 
 
     else:
-        dicionario = dicionarioCrimes
+        dicionario = dicionarioCrimes.copy()
 
 
 
