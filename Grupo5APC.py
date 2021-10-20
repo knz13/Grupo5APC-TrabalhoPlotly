@@ -13,8 +13,6 @@ import math
 
 #Aqui Pegamos Os Dados de Cada Dupla (ler e colocar os dados em uma forma mais trabalhável(dict))
 
-
-
 def DadosAugustoECatlen():
     def SepararPorAno(
             lista_arquivo):  # Lista_arquivos recebe tudo que está em lista_homens (passagem por parâmetro)
@@ -222,7 +220,7 @@ def AugustoECatlen(): # Objetivo: mostra os homicídios por arma de fogo por sex
 
     return grafico
 
-def OtavioECaio(crimesEscolhidos=None,desejaLog=None): # Objetivo: mostra as mudanças no número de ocorrencias de crimes no anos 2015-2020.
+def OtavioECaio(crimesEscolhidos=None,desejaLog=None,anoEscolhido=None): # Objetivo: mostra as mudanças no número de ocorrencias de crimes no anos 2015-2020.
 
     # Para construir o grafico vamos criar um grafico em branco e ir adicionando linha por linha em relacao aos crimes utilizando um for para passar em cada crime na lista tipoCrime
     dicionarioCrimes = duplas["OC"]["dados"]
@@ -238,9 +236,34 @@ def OtavioECaio(crimesEscolhidos=None,desejaLog=None): # Objetivo: mostra as mud
             dicionario[tipo_crime]["ano"] = dicionario_inicial[tipo_crime]["ano"]
             dicionario[tipo_crime]["ocorrencias"] = list(map(lambda a : math.log(a,10),dicionario_inicial[tipo_crime]["ocorrencias"]))
 
-        print(dicionario)
+
     else:
         dicionario = dicionarioCrimes
+
+
+
+
+    if anoEscolhido != None and anoEscolhido != []:
+        for tipo_crime in dicionario:
+            lista_ano = []
+            lista_ocorrencia = []
+
+
+            for ano in dicionario[tipo_crime]["ano"]:
+                if ano in anoEscolhido:
+                    lista_ano.append(ano)
+
+
+            index = 0
+            for ocorrencia in dicionario[tipo_crime]["ocorrencias"]:
+                if dicionario[tipo_crime]["ano"][index] in anoEscolhido:
+                    lista_ocorrencia.append(ocorrencia)
+
+                index+=1
+
+
+            dicionario[tipo_crime] = {"ano":lista_ano,"ocorrencias":lista_ocorrencia}
+
 
     grafico = go.Figure()
 
@@ -257,13 +280,15 @@ def OtavioECaio(crimesEscolhidos=None,desejaLog=None): # Objetivo: mostra as mud
             index += 1
 
 
+
+
     # aqui fazemos o layout do gráfico.
     grafico.update_layout(title="Tipos de Crime x Ano no Brasil 2015 x 2020", xaxis_title="Ano", yaxis_title=y_axis_title,
-                          legend_title="Tipo", hovermode="x unified",plot_bgcolor="#161A28", paper_bgcolor="rgba(0,0,0,0)")
+                          legend_title="Tipo", hovermode="x unified",plot_bgcolor="#161A28", paper_bgcolor="rgba(0,0,0,0)",width=600,height=400)
 
     return grafico
 
-def LarissaELeticia(regioesEscolhidas = []):
+def LarissaELeticia(regioesEscolhidas = False):
 
 
     #for reg in dicionarioEstados:
@@ -352,50 +377,86 @@ def LarissaELeticia(regioesEscolhidas = []):
     fig.update_layout(paper_bgcolor="rgba(0,0,0,0)")
     return fig
 
-def CarolEQuirino():
+def CarolEQuirino(EscolhaChecklist = []):
 
     dicionario = duplas["CQ"]["dados"]
 
     fig = go.Figure()
 
-    fig.add_trace(go.Bar(x=dicionario["Negros"]["ano"], y=dicionario["Negros"]["homicidios"], name='Homicidios de negros',
-                         marker=dict(color='black')))  # aqui especificamos a cor e o tipo de grafico
+    if "N" in EscolhaChecklist:
+        fig.add_trace(
+            go.Bar(x=dicionario["Negros"]["ano"], y=dicionario["Negros"]["homicidios"], name='Homicidios de negros',
+                   marker=dict(color='black')))  # aqui especificamos a cor e o tipo de grafico
+        fig.update_layout(barmode='group',
+                          xaxis_tickangle=-45, title="Homicídios de Negros", plot_bgcolor="#161A28",
+                          paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
 
-    fig.add_trace(go.Bar(x=dicionario["Não Negros"]["ano"], y=dicionario["Não Negros"]["homicidios"], name='Homicidios não negros',
-                         marker=dict(color='darkgrey')))  # aqui especificamos a cor e o tipo de grafico
+    if "NN" in EscolhaChecklist:
+        fig.add_trace(go.Bar(x=dicionario["Não Negros"]["ano"], y=dicionario["Não Negros"]["homicidios"],
+                             name='Homicidios não negros',
+                             marker=dict(color='darkgrey')))  # aqui especificamos a cor e o tipo de grafico
+        fig.update_layout(barmode='group',
+                          xaxis_tickangle=-45, title="Homicídios de Não Negros", plot_bgcolor="#161A28",
+                          paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
+
+
+    if len(EscolhaChecklist) == 2:
+        fig.update_layout(barmode='group',
+                          xaxis_tickangle=-45, title="Homicídios de Negros x Não Negros", plot_bgcolor="#161A28",
+                          paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
+
+
+
     fig.update_yaxes(title='Qtde Mortes', visible=True)  # aqui renomeamos o eixo Y
     fig.update_xaxes(title='Ano', visible=True)  # aqui renomeamos o eixo X
 
-    fig.update_layout(barmode='group',
-                      xaxis_tickangle=-45,title="Homicídios de Negros x Não Negros",plot_bgcolor="#161A28", paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
-
-
     return fig
 
-def AnaEGuilherme( regiaoEscolhida=None):
+def AnaEGuilherme( anoEscolhido=[]):
 
     dados = duplas["AG"]["dados"]
-
     data1 = dados["data1"]
     data2 = dados["data2"]
 
+    uf = []
     crime = []
+    ano = []
     ocorrencias = []
+    regioes = []
+    ufreg = []
 
     # coloca os elementos anteriores a 2021 em listas por categoria
     for linha in data1:
-        if linha[2] != 2021:  # linha[2] = ano
-            crime.append(linha[1])  # linha[1] = crime
-            ocorrencias.append(linha[4])  # linha[4] = ocorrencia
+        if anoEscolhido == []:
+            if linha[2] != 2021: # linha[2] = ano
+                uf.append(linha[0])
+                crime.append(linha[1]) # linha[1] = crime
+                ano.append(linha[2])
+                ocorrencias.append(linha[4]) # linha[4] = ocorrencia
 
-    # criando uma lista com a região
+        else:
+            if linha[2] != 2021 and linha[2] in anoEscolhido:
+                uf.append(linha[0])
+                ano.append(linha[2])
+                crime.append(linha[1])
+                ocorrencias.append(linha[4])
+
+    # separando as regiões e estados respectivos em listas
+    for linha in data2:
+        regioes.append(linha[0])
+        ufreg.append(linha[1])
+
+    #definindo de qual regiao é cada estado da lista uf
     regiao = []
-    for c in range(0, len(data2)):  # percorrendo o data2
-        for d in range(0, len(data1)):  # percorrendo o data1
-            if data1[d][2] != 2021:  # o d corresponde a coluna, data1[d][2] = ano
-                if data2[c][1] == data1[d][0]:  # comparando o nome do estado no data2 com o nome do estado no data1
-                    regiao.append(
-                        data2[c][0])  # adiciona na lista 'regiao' o nome da região correspondente àquele estado
+    for estado in uf:  # loop para passar por cada estado da lista uf
+        count = 0
+        for estado_reg in ufreg:  # loop para passar por cada estado da lista ufreg
+            if estado == estado_reg:  # vai comparar se o estado da lista uf é igual ao estado da lista ufreg
+                regiao.append(regioes[count])  # se forem iguais, vai adicionar a regiao que esta na mesma posição
+            count += 1  # que o estado ufreg a uma nova lista contendo todas as regioes,
+                # a posição na lista esta sendo definida pelo contador
+
+    ano = list(map(str, ano))  # muda a lista de anos de inteiro para string, pois para o gráfico precisa ser strings
 
     # grafico
 
@@ -407,52 +468,13 @@ def AnaEGuilherme( regiaoEscolhida=None):
     fig = px.sunburst(df, path=['regioes', 'crimes'], values='ocorrencias')
 
     fig.update_layout(
-        height=500,  # tamanho do gráfico em px
+        height=800,  # tamanho do gráfico em px
         title={"text": "Crimes no Brasil entre 2015 e 2020"},  # título
     )
     fig.update_layout(paper_bgcolor="rgba(0,0,0,0)")
 
     return fig
 
-
-    #crime = []
-    #ano = []
-    #regiao = []
-    #ocorrencias = []
-
-    # coloca os elementos anteriores a 2021 em listas por categoria
-    #for reg in dicionarioRegiao:
-    #    if regiaoEscolhida != None and regiaoEscolhida != []:
-    #        if reg in regiaoEscolhida:
-    #            for tipoCrime in dicionarioRegiao[reg]:
-    #                for anoAtual in dicionarioRegiao[reg][tipoCrime]:
-    #                    crime.append(tipoCrime)
-    #                    ano.append(anoAtual)
-    #                    regiao.append(reg)
-    #                    ocorrencias.append(dicionarioRegiao[reg][tipoCrime][anoAtual])
-    #    else:
-    #        for tipoCrime in dicionarioRegiao[reg]:
-    #            for anoAtual in dicionarioRegiao[reg][tipoCrime]:
-    #                crime.append(tipoCrime)
-    #                ano.append(anoAtual)
-    #                regiao.append(reg)
-    #                ocorrencias.append(dicionarioRegiao[reg][tipoCrime][anoAtual])
-
-    # grafico
-
-    #dados = dict(regioes=regiao, crimes=crime, ano=ano, ocorrencias=ocorrencias)  # informações que estarão no gráfico
-
-    # as ocorrencias são os valores tanto das regiões, quanto dos crimes
-    # o path é utilizado para atribuir os valores (as ocorrencias) para 'regioes' e 'crimes'
-
-    #fig = px.sunburst(dados, path=['regioes', 'crimes'], values='ocorrencias')
-
-    #fig.update_layout(
-    #    height=800,  # tamanho do gráfico em px
-    #    title={"text": "Crimes no Brasil entre 2015 e 2020"}  # título
-    #)
-
-    #return fig
 
 #adicionando as funções de cada grafico ao dicionario de duplas
 duplas = {
@@ -463,7 +485,6 @@ duplas = {
     "AG":{"dados":duplas["AG"]["dados"],"funcao_grafico":AnaEGuilherme},
 }
 
-
 #Aqui Fazemos O Layout De Cada Um:
 
 def LayoutOtavioECaio():
@@ -472,11 +493,20 @@ def LayoutOtavioECaio():
     options = []
     for tipo in dados.keys():
         options.append({"label":tipo,"value":tipo})
-    return html.Div(children=[dcc.Dropdown(id="dropdown_OC",options=options,multi=True,searchable=False,placeholder="Escolha Um Crime"),dcc.Checklist(id="checklist_OC",options=[{'label':'log','value':'LG'}])])
+
+    options_ano=[]
+
+    for ano in dados["Estupro"]["ano"]:
+        options_ano.append({"label":ano,"value":ano})
+
+    return html.Div(children=[dcc.Dropdown(id="dropdown_ano_OC",options=options_ano,multi=True,searchable=False,placeholder="Escolha um ano"),dcc.Dropdown(id="dropdown_OC",options=options,multi=True,searchable=False,placeholder="Escolha Um Crime"),dcc.Checklist(id="checklist_OC",options=[{'label':'log','value':'LG'}])])
 
 def LayoutCarolEQuirino():
     dados = duplas["CQ"]["dados"]
-    return html.Div()
+    return html.Div(dcc.Checklist(id="checklist_CQ",options=[
+        {"label":"Negros","value":"N"},
+        {"label":"Não Negros","value":"NN"},
+    ],value=["N","NN"],labelStyle={"display":"inline-block"}))
 
 def LayoutLarissaELeticia():
 
@@ -497,19 +527,20 @@ def LayoutAugustoECatlen():
 
 def LayoutAnaEGuilherme():
 
-    dados = duplas["AG"]["dados"]
-    options = []
+        dados = duplas["AG"]["dados"]
+        options = []
+        anos = [2015, 2016, 2017, 2018, 2019, 2020]
 
-    for reg in dados.keys():
-        options.append({"label": reg,"value": reg})
+        for ano in anos:
+            options.append({"label": ano, "value": ano})
 
-    return html.Div(children=[dcc.Dropdown(
-        id = 'dropdown_AG',
-        options = options,
-        multi=True,
-        searchable=False,
-        placeholder='Escolha uma região'
-    )])
+        return html.Div(children=[dcc.Dropdown(
+            id='dropdown_AG',
+            options=options,
+            multi=True,
+            searchable=False,
+            placeholder='Escolha um ano'
+        )])
 
 
 #adicionamos o layout de cada um ao dicionario das duplas
@@ -522,22 +553,20 @@ duplas = {
 }
 
 
-
 app = dash.Dash(__name__)
-
 
 
 app.layout = html.Div(
     children=[
-        html.Div(className='app-header', children=[
+        html.Div(className='app-header1', children=[
             html.H1("Gráficos Do Nosso Grupo", className="app-header--title")
         ]),
-        html.Div(className='ana-linda', children=[
-            html.Div(className='abacate', children=[dcc.Graph(id="grafico_CQ", figure=duplas["CQ"]['funcao_grafico']()),duplas["CQ"]["layout"]]),
-            html.Div(className='melao', children=[dcc.Graph(id="grafico_LL", figure=duplas["LL"]['funcao_grafico']()),duplas["LL"]["layout"]]),
-            html.Div(className='abacaxi', children=[dcc.Graph(id="grafico_OC", figure=duplas["OC"]['funcao_grafico']()),duplas["OC"]["layout"]]),
-            html.Div(className='maça', children=[dcc.Graph(id="grafico_AC", figure=duplas["AC"]['funcao_grafico']()),duplas["AC"]["layout"]]),
-            html.Div(className='anao', children=[dcc.Graph(id="grafico_AG", figure=duplas["AG"]['funcao_grafico']()),duplas["AG"]["layout"]])
+        html.Div(className='ana-linda1', children=[
+            html.Div(className='abacate1', children=[dcc.Graph(id="grafico_CQ", figure=duplas["CQ"]['funcao_grafico']()),duplas["CQ"]["layout"]]),
+            html.Div(className='melao1', children=[dcc.Graph(id="grafico_LL", figure=duplas["LL"]['funcao_grafico']()),duplas["LL"]["layout"]]),
+            html.Div(className='abacaxi1', children=[dcc.Graph(id="grafico_OC", figure=duplas["OC"]['funcao_grafico']()),duplas["OC"]["layout"]]),
+            html.Div(className='maça1', children=[dcc.Graph(id="grafico_AC", figure=duplas["AC"]['funcao_grafico']()),duplas["AC"]["layout"]]),
+            html.Div(className='anao1', children=[dcc.Graph(id="grafico_AG", figure=duplas["AG"]['funcao_grafico']()),duplas["AG"]["layout"]])
         ])
 ])
 
@@ -557,19 +586,36 @@ def DropdownLL(value):
 @app.callback(
     Output(component_id="grafico_OC",component_property="figure"),
     Input(component_id="dropdown_OC",component_property="value"),
-    Input(component_id="checklist_OC",component_property="value")
+    Input(component_id="checklist_OC",component_property="value"),
+    Input(component_id="dropdown_ano_OC",component_property="value")
 )
-def DropdownOC(tipoCrime,log):
-        return duplas["OC"]['funcao_grafico'](tipoCrime,log)
+def DropdownOC(tipoCrime,log,ano):
+        return duplas["OC"]['funcao_grafico'](tipoCrime,log,ano)
 
 @app.callback(
     Output(component_id="grafico_AG",component_property="figure"),
     Input(component_id="dropdown_AG",component_property="value")
 )
 def DropdownAG(value):
-    return duplas["AG"]['funcao_grafico'](value)
+    if value == None:
+        return duplas["AG"]['funcao_grafico']([])
+    else:
+        return duplas["AG"]['funcao_grafico'](value)
 
-app.run_server(debug=True)
+@app.callback(
+    Output(component_id="grafico_CQ",component_property="figure"),
+    Input(component_id="checklist_CQ",component_property="value")
+)
+#value = NoneType
+#value = []
+#value = ["N","NN"]
+def ChecklistCQ(value):
+    if value == None:
+        return duplas["CQ"]["funcao_grafico"]([])
+    else:
+        return duplas["CQ"]["funcao_grafico"](value)
+
+app.run_server()
 
 
 
