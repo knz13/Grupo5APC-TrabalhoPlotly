@@ -382,13 +382,7 @@ def CarolEQuirino(EscolhaChecklist = []):
 
     fig = go.Figure()
 
-    if len(EscolhaChecklist) == 0:
-        fig.add_trace(
-            go.Bar(x=dicionario["Negros"]["ano"], y=dicionario["Negros"]["homicidios"], name='Homicidios de negros',
-                   marker=dict(color='black')))  # aqui especificamos a cor e o tipo de grafico
-        fig.add_trace(go.Bar(x=dicionario["Não Negros"]["ano"], y=dicionario["Não Negros"]["homicidios"],
-                             name='Homicidios não negros',
-                             marker=dict(color='darkgrey')))  # aqui especificamos a cor e o tipo de grafico
+
 
     if "N" in EscolhaChecklist:
         fig.add_trace(
@@ -598,6 +592,7 @@ def DropdownLL(value):
 )
 def DropdownOC(tipoCrime,log,ano):
         return duplas["OC"]['funcao_grafico'](tipoCrime,log,ano)
+
 
 @app.callback(
     Output(component_id="grafico_AG",component_property="figure"),
