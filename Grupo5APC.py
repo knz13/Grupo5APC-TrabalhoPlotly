@@ -1,4 +1,5 @@
 import dash
+import copy
 from dash import dcc
 from dash import html
 #caso não funcione, comente as duas linhas superiores e descomente as duas linhas inferiores.
@@ -208,15 +209,35 @@ duplas = {
 
 #Aqui Temos Os Gráficos de Cada Um:
 
-def AugustoECatlen(): # Objetivo: mostra os homicídios por arma de fogo por sexo nos anos de 2000 a 2019.
+def AugustoECatlen(tipoEscolhido="V"): # Objetivo: mostra os homicídios por arma de fogo por sexo nos anos de 2000 a 2019.
 
-    dicionario = duplas["AC"]["dados"]
+    dicionario = copy.deepcopy(duplas["AC"]["dados"]) #fazer uma copia profunda para não modificar o dicionario principal
     grafico = go.Figure()
+
+
+
+    if tipoEscolhido == "P":
+        for sexo in dicionario:
+            homicidio_base = dicionario[sexo]["homicidios"][0]
+            homicidios_para_colocar_no_fim = [0]
+            for valor in dicionario[sexo]["homicidios"][1:]:
+                homicidios_para_colocar_no_fim.append((valor*100/homicidio_base)-100)
+                homicidio_base = valor
+
+            dicionario[sexo]["homicidios"] = homicidios_para_colocar_no_fim
+
+            grafico.update_layout(title="Homicídios por Arma de Fogo x Ano (Porcentagem em relação ao ano anterior)", xaxis_title="Ano",
+                                  yaxis_title="Homicídios %",
+                                  legend_title="Sexo", hovermode="x unified", plot_bgcolor="#161A28",
+                                  paper_bgcolor="rgba(0,0,0,0)")
+    else:
+        grafico.update_layout(title="Homicídios por Arma de Fogo x Ano", xaxis_title="Ano", yaxis_title="Homicídios",
+                              legend_title="Sexo", hovermode="x unified", plot_bgcolor="#161A28",
+                              paper_bgcolor="rgba(0,0,0,0)")
 
     for sexo in dicionario:
         grafico.add_scatter(x=dicionario[sexo]["ano"], y=dicionario[sexo]["homicidios"], name=sexo, mode="lines")
 
-    grafico.update_layout(title="Homicídios por Arma de Fogo x Ano",xaxis_title="Ano",yaxis_title="Homicídios",legend_title="Sexo",hovermode="x unified",plot_bgcolor="#161A28", paper_bgcolor="rgba(0,0,0,0)")
 
     return grafico
 
@@ -312,7 +333,7 @@ def LarissaELeticia(regioesEscolhidas = False):
     #                    vitimas.append(dicionarioEstados[reg][tipo_de_crime][ano_atual][sexo])
 
 
-    dados=duplas["LL"]["dados"]
+    dados= copy.deepcopy(duplas["LL"]["dados"]) #fazer uma copia profunda para não modificar o dicionario principal
 
     data1_array = dados["data1_array"]
     data2_array = dados["data2_array"]
@@ -378,7 +399,7 @@ def LarissaELeticia(regioesEscolhidas = False):
 
 def CarolEQuirino(EscolhaChecklist = []):
 
-    dicionario = duplas["CQ"]["dados"]
+    dicionario = copy.deepcopy(duplas["CQ"]["dados"]) #fazer uma copia profunda para não modificar o dicionario principal
 
     fig = go.Figure()
 
@@ -415,7 +436,7 @@ def CarolEQuirino(EscolhaChecklist = []):
 
 def AnaEGuilherme( anoEscolhido=[]):
 
-    dados = duplas["AG"]["dados"]
+    dados = copy.deepcopy(duplas["AG"]["dados"]) #fazer uma copia profunda para não modificar o dicionario principal
     data1 = dados["data1"]
     data2 = dados["data2"]
 
@@ -500,7 +521,7 @@ def LayoutOtavioECaio():
     for ano in dados["Estupro"]["ano"]:
         options_ano.append({"label":ano,"value":ano})
 
-    return html.Div(children=[dcc.Dropdown(id="dropdown_ano_OC",options=options_ano,multi=True,searchable=False,placeholder="Escolha um ano"),dcc.Dropdown(id="dropdown_OC",options=options,multi=True,searchable=False,placeholder="Escolha Um Crime"),dcc.Checklist(id="checklist_OC",options=[{'label':'log','value':'LG'}])])
+    return html.Div(children=[dcc.Checklist(id="checklist_OC",options=[{'label':'log','value':'LG'}]),dcc.Dropdown(id="dropdown_ano_OC",options=options_ano,multi=True,searchable=False,placeholder="Escolha um ano"),dcc.Dropdown(id="dropdown_OC",options=options,multi=True,searchable=False,placeholder="Escolha Um Crime")])
 
 def LayoutCarolEQuirino():
     dados = duplas["CQ"]["dados"]
@@ -524,7 +545,12 @@ def LayoutLarissaELeticia():
 def LayoutAugustoECatlen():
 
     dados=duplas["AC"]["dados"]
-    return html.Div()
+
+
+    return html.Div(children=[dcc.RadioItems(id="radioItems_AC",options=[
+        {"label":"valor","value":"V"},
+        {"label":"porcentagem","value":"P"}
+    ],value="V")])
 
 def LayoutAnaEGuilherme():
 
@@ -578,7 +604,7 @@ app.layout = html.Div(
     Output(component_id="grafico_LL",component_property="figure"),
     Input(component_id="dropdown_LL",component_property="value")
 )
-def DropdownLL(value):
+def CallbackLL(value):
     if value == None:
         return duplas["LL"]['funcao_grafico']()
     else:
@@ -590,7 +616,7 @@ def DropdownLL(value):
     Input(component_id="checklist_OC",component_property="value"),
     Input(component_id="dropdown_ano_OC",component_property="value")
 )
-def DropdownOC(tipoCrime,log,ano):
+def CallbackOC(tipoCrime,log,ano):
         return duplas["OC"]['funcao_grafico'](tipoCrime,log,ano)
 
 
@@ -598,7 +624,7 @@ def DropdownOC(tipoCrime,log,ano):
     Output(component_id="grafico_AG",component_property="figure"),
     Input(component_id="dropdown_AG",component_property="value")
 )
-def DropdownAG(value):
+def CallbackAG(value):
     if value == None:
         return duplas["AG"]['funcao_grafico']([])
     else:
@@ -611,11 +637,20 @@ def DropdownAG(value):
 #value = NoneType
 #value = []
 #value = ["N","NN"]
-def ChecklistCQ(value):
+def CallbackCQ(value):
     if value == None:
         return duplas["CQ"]["funcao_grafico"]([])
     else:
         return duplas["CQ"]["funcao_grafico"](value)
+
+
+
+@app.callback(
+    Output(component_id="grafico_AC",component_property="figure"),
+    Input(component_id="radioItems_AC",component_property="value")
+)
+def CallbackAC(value):
+    return duplas["AC"]["funcao_grafico"](value)
 
 app.run_server()
 
