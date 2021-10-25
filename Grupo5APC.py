@@ -1,22 +1,18 @@
-import dash
 import copy
-from dash import dcc
+import dash
 from dash import html
-#caso não funcione, comente as duas linhas superiores e descomente as duas linhas inferiores.
+from dash import dcc
 #import dash_core_components as dcc
 #import dash_html_components as html
-from dash.dependencies import Input,Output
+from dash.dependencies import Input, Output
 import plotly.express as px
-import plotly.offline as py
 import plotly.graph_objects as go
 import pandas
 import math
 
-#Aqui Pegamos Os Dados de Cada Dupla (ler e colocar os dados em uma forma mais trabalhável(dict))
 
 def DadosAugustoECatlen():
-    def SepararPorAno(
-            lista_arquivo):  # Lista_arquivos recebe tudo que está em lista_homens (passagem por parâmetro)
+    def SepararPorAno(lista_arquivo):  # Lista_arquivos recebe tudo que está em lista_homens (passagem por parâmetro)
         lista_com_os_anos = []
         lista_mortes_por_ano = []
 
@@ -32,10 +28,8 @@ def DadosAugustoECatlen():
 
         for coluna in lista_arquivo:
             for linha in coluna:
-                ano = int(linha.split(";")[
-                              2])  # Variavel ano recebe o conteudo presente na posição [2]
-                mortes = (int(linha.split(';')[
-                                  3]))  # Variavel mortes recebe o conteudo presente na posição [3]
+                ano = int(linha.split(";")[2])  # Variavel ano recebe o conteudo presente na posição [2]
+                mortes = (int(linha.split(';')[3]))  # Variavel mortes recebe o conteudo presente na posição [3]
                 lista_mortes_por_ano[lista_com_os_anos.index(
                     ano)] += mortes  # Soma todas as mortes que o ocorreram em um determinado ano e armazena esse valor na lista_mortes_por_ano
 
@@ -209,11 +203,11 @@ duplas = {
 
 #Aqui Temos Os Gráficos de Cada Um:
 
+
 def AugustoECatlen(tipoEscolhido="V"): # Objetivo: mostra os homicídios por arma de fogo por sexo nos anos de 2000 a 2019.
 
     dicionario = copy.deepcopy(duplas["AC"]["dados"]) #fazer uma copia profunda para não modificar o dicionario principal
     grafico = go.Figure()
-
 
 
     if tipoEscolhido == "P":
@@ -226,22 +220,26 @@ def AugustoECatlen(tipoEscolhido="V"): # Objetivo: mostra os homicídios por arm
 
             dicionario[sexo]["homicidios"] = homicidios_para_colocar_no_fim
 
-            grafico.update_layout(title="Homicídios por Arma de Fogo x Ano (Porcentagem em relação ao ano anterior)", xaxis_title="Ano",
+            grafico.update_layout(title="Em relação ao ano anterior", xaxis_title="Ano",
                                   yaxis_title="Homicídios %",
                                   legend_title="Sexo", hovermode="x unified", plot_bgcolor="#161A28",
                                   paper_bgcolor="rgba(0,0,0,0)")
     else:
-        grafico.update_layout(title="Homicídios por Arma de Fogo x Ano", xaxis_title="Ano", yaxis_title="Homicídios",
+        grafico.update_layout(xaxis_title="Ano", yaxis_title="Homicídios",
                               legend_title="Sexo", hovermode="x unified", plot_bgcolor="#161A28",
                               paper_bgcolor="rgba(0,0,0,0)")
+
 
     for sexo in dicionario:
         grafico.add_scatter(x=dicionario[sexo]["ano"], y=dicionario[sexo]["homicidios"], name=sexo, mode="lines")
 
 
+
+
     return grafico
 
-def OtavioECaio(crimesEscolhidos=None,desejaLog=None,anoEscolhido=None): # Objetivo: mostra as mudanças no número de ocorrencias de crimes no anos 2015-2020.
+
+def OtavioECaio(crimesEscolhidos=None, desejaLog=None, anoEscolhido=None): # Objetivo: mostra as mudanças no número de ocorrencias de crimes no anos 2015-2020.
 
     # Para construir o grafico vamos criar um grafico em branco e ir adicionando linha por linha em relacao aos crimes utilizando um for para passar em cada crime na lista tipoCrime
     dicionarioCrimes = duplas["OC"]["dados"]
@@ -303,41 +301,23 @@ def OtavioECaio(crimesEscolhidos=None,desejaLog=None,anoEscolhido=None): # Objet
 
 
     # aqui fazemos o layout do gráfico.
-    grafico.update_layout(title="Tipos de Crime x Ano no Brasil 2015 x 2020", xaxis_title="Ano", yaxis_title=y_axis_title,
-                          legend_title="Tipo", hovermode="x unified",plot_bgcolor="#161A28", paper_bgcolor="rgba(0,0,0,0)",width=600,height=400)
+    grafico.update_layout(xaxis_title="Ano",
+                          yaxis_title=y_axis_title,
+                          legend_title="Tipo",
+                          hovermode="x unified",
+                          plot_bgcolor="#161A28",
+                          paper_bgcolor="rgba(0,0,0,0)",
+                          height=350)
 
     return grafico
 
-def LarissaELeticia(regioesEscolhidas = False):
 
+def LarissaELeticia(generoEscolhido = []):
 
-    #for reg in dicionarioEstados:
-    #    if len(regioesEscolhidas) != 0:
-    #        if reg in regioesEscolhidas:
-    #            for tipo_de_crime in dicionarioEstados[reg]:
-    #                for ano_atual in dicionarioEstados[reg][tipo_de_crime]:
-    #                    for sexo in dicionarioEstados[reg][tipo_de_crime][ano_atual]:
-    #                        crime.append(tipo_de_crime)
-    #                        ano.append(ano_atual)
-    #                        regiao.append(reg)
-    #                        genero.append(sexo)
-    #                        vitimas.append(dicionarioEstados[reg][tipo_de_crime][ano_atual][sexo])
-    #    else:
-    #        for tipo_de_crime in dicionarioEstados[reg]:
-    #            for ano_atual in dicionarioEstados[reg][tipo_de_crime]:
-    #                for sexo in dicionarioEstados[reg][tipo_de_crime][ano_atual]:
-    #                    crime.append(tipo_de_crime)
-    #                    ano.append(ano_atual)
-    #                    regiao.append(reg)
-    #                    genero.append(sexo)
-    #                    vitimas.append(dicionarioEstados[reg][tipo_de_crime][ano_atual][sexo])
-
-
-    dados= copy.deepcopy(duplas["LL"]["dados"]) #fazer uma copia profunda para não modificar o dicionario principal
+    dados=duplas["LL"]["dados"]
 
     data1_array = dados["data1_array"]
     data2_array = dados["data2_array"]
-
 
     uf = []
     crime = []
@@ -346,56 +326,64 @@ def LarissaELeticia(regioesEscolhidas = False):
     vitimas = []
     regiaos = []
     ufreg = []
-    # separando cada coluna a ser usada da base de dados em listas
-    # ordem das listas [uf, crime, ano, mês, genero, vitimas]
-    #                   0     1     2    3     4        5
+
     for linha in data1_array:
-        # para não pegar o ano de 2021
-        if linha[2] != 2021:
+        geneross = linha[4]
+        if geneross == "Não informado" or geneross == "Sem Informação":
+            geneross = 'Sexo NI'
+        if linha[2] != 2021 and geneross in generoEscolhido:
             uf.append(linha[0])
             crime.append(linha[1])
             ano.append(linha[2])
-            genero.append(linha[4])
+            genero.append(geneross)
+            vitimas.append(linha[5])
+        elif linha[2] != 2021 and generoEscolhido == []:
+            uf.append(linha[0])
+            crime.append(linha[1])
+            ano.append(linha[2])
+            genero.append(geneross)
             vitimas.append(linha[5])
 
-    # separando as regiões e estados respectivos em listas
     for linha in data2_array:
         regiaos.append(linha[0])
         ufreg.append(linha[1])
 
-    # definindo de qual regiao é cada estado da lista uf
     regiao = []
-    for estado in uf:  # loop para passar por cada estado da lista uf
+    for estado in uf:
         count = 0
-        for estado_reg in ufreg:  # loop para passar por cada estado da lista ufreg
-            if estado == estado_reg:  # vai comparar se o estado da lista uf é igual ao estado da lista ufreg
-                regiao.append(regiaos[count])  # se forem iguais, vai adicionar a regiao que esta na mesma posição
-            count += 1  # que o estado ufreg a uma nova lista contendo todas as regioes,
-            # a posição na lista esta sendo definida pelo contador
+        for estado_reg in ufreg:
+            if estado == estado_reg:
+                regiao.append(regiaos[count])
+            count += 1
 
     ano = list(map(str, ano))  # muda a lista de anos de inteiro para string, pois para o gráfico precisa ser strings
 
-    # mudando alguns itens da lista para nomes menores
-    # percorre os itens da lista, aqueles em que o if for verdadeiro ele troca pelo novo valor informado (informação antes do if)
     crime = ["Ls. Cp. sg. Morte" if value == "Lesão corporal seguida de morte" else value for value in crime]
     crime = ["Latrocínio" if value == "Roubo seguido de morte (latrocínio)" else value for value in crime]
-    genero = ["Sexo NI" if value == "Não informado" or value == "Sem Informação" else value for value in genero]
 
-    # dicionario do banco de dados a ser usado no gráfico, cada um representa uma lista criada
     dados = dict(crime=crime, ano=ano, regiao=regiao, genero=genero, vitimas=vitimas)
 
-    # grafico, o path mostra a ordem hierárquica do gráfico, o primeiro é o nível um, o segundo o nível dois,...
-    # o segundo nível está dentro do primeiro, o terceiro dentro do segundo que está dentro do primeiro,...
-    # o path vai percorrer toda a lista informada e juntar todos os iguais e seus respectivos valores
-    fig = px.sunburst(dados, path=['crime', 'regiao', 'ano', 'genero'], values='vitimas',
-                      color='ano',  # define que a cor do nível que está o ano será mudada
-                      color_discrete_sequence=["rgb(217, 233, 241)", "rgb(247, 182, 152)", "rgb(127, 8, 35)",
-                                               "rgb(251, 209, 186)", "rgb(126, 184, 215)", "rgb(5, 48, 97)",
-                                               "rgb(217, 233, 241)"]  # define a ordem das cores a serem mudadas
-                      )
+    if generoEscolhido == []:
+        fig = px.sunburst(dados, path=['crime', 'regiao', 'ano', 'genero'], values='vitimas',
+                          color='crime',
+                          color_discrete_sequence=[ "rgb(146, 224, 211)", "rgb(244, 212, 77)", "rgb(244, 80, 96)"]
+                          )
+    elif len(generoEscolhido) > 1:
+        fig = px.sunburst(dados, path=['crime', 'regiao', 'ano', 'genero'], values='vitimas',
+                          color='crime',
+                          color_discrete_sequence=[ "rgb(146, 224, 211)", "rgb(244, 212, 77)", "rgb(244, 80, 96)"])
+    else:
+        fig = px.sunburst(dados, path=['crime', 'regiao', 'ano'], values='vitimas',
+                          color='crime',
+                          color_discrete_sequence=[ "rgb(146, 224, 211)", "rgb(244, 212, 77)", "rgb(244, 80, 96)"]
+                          )
 
-    fig.update_layout(paper_bgcolor="rgba(0,0,0,0)")
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        height=700,
+    )
     return fig
+
 
 def CarolEQuirino(EscolhaChecklist = []):
 
@@ -404,27 +392,29 @@ def CarolEQuirino(EscolhaChecklist = []):
     fig = go.Figure()
 
 
-
     if "N" in EscolhaChecklist:
         fig.add_trace(
-            go.Bar(x=dicionario["Negros"]["ano"], y=dicionario["Negros"]["homicidios"], name='Homicidios de negros',
-                   marker=dict(color='black')))  # aqui especificamos a cor e o tipo de grafico
+            go.Bar(x=dicionario["Negros"]["ano"],
+                   y=dicionario["Negros"]["homicidios"],
+                   name='Negros',
+                   marker=dict(color='rgb(244, 212, 77)')))  # aqui especificamos a cor e o tipo de grafico
         fig.update_layout(barmode='group',
-                          xaxis_tickangle=-45, title="Homicídios de Negros", plot_bgcolor="#161A28",
+                          plot_bgcolor="#161A28",
                           paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
 
     if "NN" in EscolhaChecklist:
-        fig.add_trace(go.Bar(x=dicionario["Não Negros"]["ano"], y=dicionario["Não Negros"]["homicidios"],
-                             name='Homicidios não negros',
-                             marker=dict(color='darkgrey')))  # aqui especificamos a cor e o tipo de grafico
+        fig.add_trace(go.Bar(x=dicionario["Não Negros"]["ano"],
+                             y=dicionario["Não Negros"]["homicidios"],
+                             name='Não negros',
+                             marker=dict(color='rgb(146, 224, 211)')))  # aqui especificamos a cor e o tipo de grafico
         fig.update_layout(barmode='group',
-                          xaxis_tickangle=-45, title="Homicídios de Não Negros", plot_bgcolor="#161A28",
+                          plot_bgcolor="#161A28",
                           paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
 
 
     if len(EscolhaChecklist) == 2:
         fig.update_layout(barmode='group',
-                          xaxis_tickangle=-45, title="Homicídios de Negros x Não Negros", plot_bgcolor="#161A28",
+                          plot_bgcolor="#161A28",
                           paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
 
 
@@ -434,7 +424,8 @@ def CarolEQuirino(EscolhaChecklist = []):
 
     return fig
 
-def AnaEGuilherme( anoEscolhido=[]):
+
+def AnaEGuilherme(anoEscolhido = []):
 
     dados = copy.deepcopy(duplas["AG"]["dados"]) #fazer uma copia profunda para não modificar o dicionario principal
     data1 = dados["data1"]
@@ -487,13 +478,13 @@ def AnaEGuilherme( anoEscolhido=[]):
     # as ocorrencias são os valores tanto das regiões, quanto dos crimes
     # o path é utilizado para atribuir os valores (as ocorrencias) para 'regioes' e 'crimes'
 
-    fig = px.sunburst(df, path=['regioes', 'crimes'], values='ocorrencias')
+    fig = px.sunburst(df, path=['regioes', 'crimes'], values='ocorrencias', color='regioes',
+                      color_discrete_sequence=["rgb(146, 224, 211)", "rgb(255, 127, 80)", "rgb(154, 62, 73)", "rgb(244, 212, 77)", "rgb(244, 80, 96)"])
 
     fig.update_layout(
-        height=800,  # tamanho do gráfico em px
-        title={"text": "Crimes no Brasil entre 2015 e 2020"},  # título
+        height=500,
+        paper_bgcolor="rgba(0,0,0,0)"
     )
-    fig.update_layout(paper_bgcolor="rgba(0,0,0,0)")
 
     return fig
 
@@ -510,7 +501,6 @@ duplas = {
 #Aqui Fazemos O Layout De Cada Um:
 
 def LayoutOtavioECaio():
-
     dados = duplas["OC"]["dados"]
     options = []
     for tipo in dados.keys():
@@ -521,7 +511,34 @@ def LayoutOtavioECaio():
     for ano in dados["Estupro"]["ano"]:
         options_ano.append({"label":ano,"value":ano})
 
-    return html.Div(children=[dcc.Checklist(id="checklist_OC",options=[{'label':'log','value':'LG'}]),dcc.Dropdown(id="dropdown_ano_OC",options=options_ano,multi=True,searchable=False,placeholder="Escolha um ano"),dcc.Dropdown(id="dropdown_OC",options=options,multi=True,searchable=False,placeholder="Escolha Um Crime")])
+    return html.Div(children=[
+        dcc.Checklist(id="checklist_OC",
+                      options=[{'label':'log', 'value':'LG'}],
+                      style=dict(
+                          color='#FFFFFF',
+                      )),
+        dcc.Dropdown(id="dropdown_ano_OC",
+                     options=options_ano,
+                     multi=True,
+                     searchable=False,
+                     placeholder="Escolha um ano",
+                     style=dict(
+                         background='rgba(0,0,0,0)',
+                         borderRadius='50px',
+                         display='inline-block'
+                     )),
+        dcc.Dropdown(id="dropdown_OC",
+                     options=options,
+                     multi=True,
+                     searchable=False,
+                     placeholder="Escolha Um Crime",
+                     style=dict(
+                         background='rgba(0,0,0,0)',
+                         borderRadius='50px',
+                         display='inline-block'
+                     ))
+    ])
+
 
 def LayoutCarolEQuirino():
     dados = duplas["CQ"]["dados"]
@@ -530,27 +547,40 @@ def LayoutCarolEQuirino():
         {"label":"Não Negros","value":"NN"},
     ],value=["N","NN"],labelStyle={"display":"inline-block"}))
 
-def LayoutLarissaELeticia():
 
+def LayoutLarissaELeticia():
     dados = duplas["LL"]["dados"]
+    generos = ['Feminino', 'Masculino', 'Sexo NI']
     options = []
 
-    for reg in dados.keys():
-        options.append({"label":reg,"value":reg})
+    for genero in generos:
+        options.append({"label": genero, "value": genero})
 
     return html.Div(children=[dcc.Dropdown(id="dropdown_LL",
-        options=options,placeholder="Escolha Uma Região",multi=True,searchable=False
-    )])
+                                           options=options,
+                                           placeholder="Escolha um Gênero",
+                                           multi=True,
+                                           searchable=False,
+                                           style=dict(
+                                               background='rgba(0,0,0,0)',
+                                               borderRadius='50px',
+                                               display='inline-block'
+                                           ))
+                              ])
+
 
 def LayoutAugustoECatlen():
 
     dados=duplas["AC"]["dados"]
 
 
-    return html.Div(children=[dcc.RadioItems(id="radioItems_AC",options=[
+    return html.Div(children=[dcc.RadioItems(id="radioItems_AC",
+                                             options=[
         {"label":"valor","value":"V"},
         {"label":"porcentagem","value":"P"}
-    ],value="V")])
+    ],
+                                             value="V")])
+
 
 def LayoutAnaEGuilherme():
 
@@ -566,8 +596,13 @@ def LayoutAnaEGuilherme():
             options=options,
             multi=True,
             searchable=False,
-            placeholder='Escolha um ano'
-        )])
+            placeholder='Escolha um ano',
+            style=dict(
+                background='rgba(0,0,0,0)',
+                borderRadius='50px',
+                display='inline-block'
+            ))
+        ])
 
 
 #adicionamos o layout de cada um ao dicionario das duplas
@@ -585,18 +620,17 @@ app = dash.Dash(__name__)
 
 app.layout = html.Div(
     children=[
-        html.Div(className='app-header1', children=[
-            html.H1("Gráficos Do Nosso Grupo", className="app-header--title")
+        html.Div(className='app-header', children=[
+            html.H1("CRIMINALIDADE NO BRASIL", className="app-header--title")
         ]),
-        html.Div(className='ana-linda1', children=[
-            html.Div(className='abacate1', children=[dcc.Graph(id="grafico_CQ", figure=duplas["CQ"]['funcao_grafico']()),duplas["CQ"]["layout"]]),
-            html.Div(className='melao1', children=[dcc.Graph(id="grafico_LL", figure=duplas["LL"]['funcao_grafico']()),duplas["LL"]["layout"]]),
-            html.Div(className='abacaxi1', children=[dcc.Graph(id="grafico_OC", figure=duplas["OC"]['funcao_grafico']()),duplas["OC"]["layout"]]),
-            html.Div(className='maça1', children=[dcc.Graph(id="grafico_AC", figure=duplas["AC"]['funcao_grafico']()),duplas["AC"]["layout"]]),
-            html.Div(className='anao1', children=[dcc.Graph(id="grafico_AG", figure=duplas["AG"]['funcao_grafico']()),duplas["AG"]["layout"]])
+        html.Div(className='graficos', children=[
+            html.Div(className='OC', children=[html.H1('Tipos de Crime x Ano no Brasil 2015 x 2020'), dcc.Graph(id="grafico_OC", figure=duplas["OC"]['funcao_grafico']()),duplas["OC"]["layout"]]),
+            html.Div(className='AG', children=[html.H1('Crimes no Brasil entre 2015 e 2020'), dcc.Graph(id="grafico_AG", figure=duplas["AG"]['funcao_grafico']()),duplas["AG"]["layout"]]),
+            html.Div(className='LL', children=[html.H1('Vítimas por gênero dos anos de 2015 a 2020'), dcc.Graph(id="grafico_LL", figure=duplas["LL"]['funcao_grafico']()),duplas["LL"]["layout"]]),
+            html.Div(className='AC', children=[html.H1('Homicídios por Arma de Fogo x Ano'), dcc.Graph(id="grafico_AC", figure=duplas["AC"]['funcao_grafico']()),duplas["AC"]["layout"]]),
+            html.Div(className='CQ', children=[html.H1('Homicídios de Negros x Não Negros'), dcc.Graph(id="grafico_CQ", figure=duplas["CQ"]['funcao_grafico']()),duplas["CQ"]["layout"]])
         ])
-])
-
+    ])
 
 
 
@@ -653,7 +687,6 @@ def CallbackAC(value):
     return duplas["AC"]["funcao_grafico"](value)
 
 app.run_server()
-
 
 
 
