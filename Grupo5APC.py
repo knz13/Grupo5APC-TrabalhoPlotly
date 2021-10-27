@@ -57,6 +57,7 @@ def DadosAugustoECatlen():
     }
     return dicionario
 
+
 def DadosLarissaELeticia():
     data1 = pandas.read_csv("vitimas.csv", sep=";")  # ---------- lê a base de dados e armazena na variável
     data1_array = data1.values  # ---------- lê e armazena cada linha da base de dados como uma lista
@@ -64,6 +65,7 @@ def DadosLarissaELeticia():
     data2_array = data2.values
 
     return dict(data1_array=data1_array,data2_array=data2_array)
+
 
 def DadosOtavioECaio():
     # Para facilitar na hora de fazer o grafico fazemos uma funcao que ira retornar listas com os tipos de crimes, tipos de cimes por ano e ocorrencias por tipo de crimepor ano
@@ -147,6 +149,7 @@ def DadosOtavioECaio():
 
     return dicionario_tipos
 
+
 def DadosCarolEQuirino():
     # aqui colocamos as listas para os valores e os periodos dos graficos
     per = []
@@ -182,6 +185,7 @@ def DadosCarolEQuirino():
     }
     return dicionario
 
+
 def DadosAnaEGuilherme():
     # criando os data frames
     df1 = pandas.read_excel("indicadoressegurancapublicauf.xlsx")
@@ -209,27 +213,40 @@ def AugustoECatlen(tipoEscolhido="V"): # Objetivo: mostra os homicídios por arm
     dicionario = copy.deepcopy(duplas["AC"]["dados"]) #fazer uma copia profunda para não modificar o dicionario principal
     grafico = go.Figure()
 
-
+    #Se a pessoa escolher o modo porcentagem com base no ano anterior:
     if tipoEscolhido == "P":
+        #para cada sexo no dicionario:
         for sexo in dicionario:
-            homicidio_base = dicionario[sexo]["homicidios"][0]
-            homicidios_para_colocar_no_fim = [0]
-            for valor in dicionario[sexo]["homicidios"][1:]:
-                homicidios_para_colocar_no_fim.append((valor*100/homicidio_base)-100)
-                homicidio_base = valor
 
+            #definimos um homicídio base com o primeiro ano
+            homicidio_base = dicionario[sexo]["homicidios"][0]
+            
+            #colocamos um 0 no inicio, já que não temos anos anteriores
+            homicidios_para_colocar_no_fim = [0]
+
+            #para cada valor, vamos adicionar a diferença entre o homicídio do ano anterior e do ano atual.
+            for valor in dicionario[sexo]["homicidios"][1:]:
+                homicidios_para_colocar_no_fim.append((valor*100/homicidio_base)-100) #adicionamos a diferença entre eles e subtraimos 100 para vermos a diferença 
+                homicidio_base = valor #atualizamos o ano anterior (ou ano base)
+
+
+            #adicionamos os valores atualizados no dicionário
             dicionario[sexo]["homicidios"] = homicidios_para_colocar_no_fim
 
+
+            #atualizamos o titulo.
             grafico.update_layout(title="Em relação ao ano anterior", xaxis_title="Ano",
                                   yaxis_title="Homicídios %",
                                   legend_title="Sexo", hovermode="x unified", plot_bgcolor="#161A28",
                                   paper_bgcolor="rgba(0,0,0,0)")
     else:
+        #atualizamos o titulo
         grafico.update_layout(xaxis_title="Ano", yaxis_title="Homicídios",
                               legend_title="Sexo", hovermode="x unified", plot_bgcolor="#161A28",
                               paper_bgcolor="rgba(0,0,0,0)")
 
 
+    #para cada sexo, adicionamos uma linha no gráfico.
     for sexo in dicionario:
         grafico.add_scatter(x=dicionario[sexo]["ano"], y=dicionario[sexo]["homicidios"], name=sexo, mode="lines")
 
@@ -241,57 +258,71 @@ def AugustoECatlen(tipoEscolhido="V"): # Objetivo: mostra os homicídios por arm
 
 def OtavioECaio(crimesEscolhidos=None, desejaLog=None, anoEscolhido=None): # Objetivo: mostra as mudanças no número de ocorrencias de crimes no anos 2015-2020.
 
-    # Para construir o grafico vamos criar um grafico em branco e ir adicionando linha por linha em relacao aos crimes utilizando um for para passar em cada crime na lista tipoCrime
-    dicionarioCrimes = duplas["OC"]["dados"]
+    #fazemos uma cópia profunda dos dados no dicionario de duplas para não modificarmos o dicionario.
+    dicionario_inicial = copy.deepcopy(duplas["OC"]["dados"])
+    
 
     y_axis_title="Ocorrências"
     if desejaLog != None and desejaLog != []:
         y_axis_title = "Ocorrências (log n)"
-        dicionario_inicial = dicionarioCrimes.copy()
-        dicionario = {}
+        dicionario = {} 
+        
 
         for tipo_crime in dicionario_inicial:
-            dicionario[tipo_crime] = {"ano":[],"ocorrencias":[]}
+            #dicionario[tipo_crime] = {"ano":[],"ocorrencias":[]}
             dicionario[tipo_crime]["ano"] = dicionario_inicial[tipo_crime]["ano"]
             dicionario[tipo_crime]["ocorrencias"] = list(map(lambda a : math.log(a,10),dicionario_inicial[tipo_crime]["ocorrencias"]))
 
+        #lambda define uma função na hora, sem precisar escrever um def (util para funções pequenas de uso único)
+        #no caso esse lambda pega para cada item (variável a) e retorna o log na base 10 dele.
+
 
     else:
-        dicionario = dicionarioCrimes.copy()
+        #caso a pessoa não escolha o log, somente colocamos o dicionario_inicial
+        dicionario = dicionario_inicial
 
 
 
-
+    #caso a pessoa escolha um ou mais anos.
     if anoEscolhido != None and anoEscolhido != []:
+        #para cada tipo de crime no dicionario.
         for tipo_crime in dicionario:
+            #criamos duas listas vazias para preenchermos com os dados
             lista_ano = []
             lista_ocorrencia = []
 
 
             for ano in dicionario[tipo_crime]["ano"]:
+                #caso o ano esteja na lista dos anos escolhidos, adicionamos na lista_ano
                 if ano in anoEscolhido:
                     lista_ano.append(ano)
 
 
             index = 0
             for ocorrencia in dicionario[tipo_crime]["ocorrencias"]:
+                #caso essa ocorrencia esteja no ano em que escolhemos, adicionamos na lista_ocorrencia.
                 if dicionario[tipo_crime]["ano"][index] in anoEscolhido:
                     lista_ocorrencia.append(ocorrencia)
                 index+=1
 
-
+            #atualizamos o dicionario com as listas novas.
             dicionario[tipo_crime] = {"ano":lista_ano,"ocorrencias":lista_ocorrencia}
 
 
     grafico = go.Figure()
 
     index = 0
+    #para cada tipo de crime no dicionario...
     for tipoCrime in dicionario:
+
+        #caso a pessoa tenha escolhido um ou mais crimes:
         if crimesEscolhidos != None and crimesEscolhidos != []:
+            #colocamos os crimes especificados no grafico.
             if tipoCrime in crimesEscolhidos:
                 grafico.add_scatter(x=dicionario[tipoCrime]["ano"], y=dicionario[tipoCrime]["ocorrencias"],
                                         mode="markers+lines", name=tipoCrime)
             index += 1
+        #caso a pessoa não escolha nenhum, colocamos todos.
         else:
             grafico.add_scatter(x=dicionario[tipoCrime]["ano"], y=dicionario[tipoCrime]["ocorrencias"],
                                 mode="markers+lines", name=tipoCrime)
@@ -314,7 +345,7 @@ def OtavioECaio(crimesEscolhidos=None, desejaLog=None, anoEscolhido=None): # Obj
 
 def LarissaELeticia(generoEscolhido = []):
 
-    dados=duplas["LL"]["dados"]
+    dados=copy.deepcopy(duplas["LL"]["dados"]) #fazemos uma cópia profunda para evitarmos mudar o dicionario principal.
 
     data1_array = dados["data1_array"]
     data2_array = dados["data2_array"]
@@ -327,16 +358,23 @@ def LarissaELeticia(generoEscolhido = []):
     regiaos = []
     ufreg = []
 
+    #para cada linha no data1_array (a lista com os dados principais)
     for linha in data1_array:
         geneross = linha[4]
+        #caso o genero seja algum desses, vamos colocar o genero como sexo NI.
         if geneross == "Não informado" or geneross == "Sem Informação":
             geneross = 'Sexo NI'
+
+        #caso a pessoa tenha escolhido um ou mais generos, adicionamos apenas esses.
         if linha[2] != 2021 and geneross in generoEscolhido:
+
             uf.append(linha[0])
             crime.append(linha[1])
             ano.append(linha[2])
             genero.append(geneross)
             vitimas.append(linha[5])
+
+        #caso a pessoa não tenha escolhido nenhum genero, adicionamos todos.
         elif linha[2] != 2021 and generoEscolhido == []:
             uf.append(linha[0])
             crime.append(linha[1])
@@ -344,10 +382,14 @@ def LarissaELeticia(generoEscolhido = []):
             genero.append(geneross)
             vitimas.append(linha[5])
 
+
+    #aqui adicionamos uma relação entre cada região e estado.
     for linha in data2_array:
         regiaos.append(linha[0])
         ufreg.append(linha[1])
 
+
+    #aqui estamos substituindo os estados por regiões.
     regiao = []
     for estado in uf:
         count = 0
@@ -361,17 +403,17 @@ def LarissaELeticia(generoEscolhido = []):
     crime = ["Ls. Cp. sg. Morte" if value == "Lesão corporal seguida de morte" else value for value in crime]
     crime = ["Latrocínio" if value == "Roubo seguido de morte (latrocínio)" else value for value in crime]
 
+    
     dados = dict(crime=crime, ano=ano, regiao=regiao, genero=genero, vitimas=vitimas)
 
-    if generoEscolhido == []:
+
+    #caso a pessoa tenha escolhido mais de um genero
+    if len(generoEscolhido) > 1:
         fig = px.sunburst(dados, path=['crime', 'regiao', 'ano', 'genero'], values='vitimas',
                           color='crime',
                           color_discrete_sequence=[ "rgb(146, 224, 211)", "rgb(244, 212, 77)", "rgb(244, 80, 96)"]
                           )
-    elif len(generoEscolhido) > 1:
-        fig = px.sunburst(dados, path=['crime', 'regiao', 'ano', 'genero'], values='vitimas',
-                          color='crime',
-                          color_discrete_sequence=[ "rgb(146, 224, 211)", "rgb(244, 212, 77)", "rgb(244, 80, 96)"])
+    #caso a pessoa escolha nenhum ou um genero, não colocamos o genero.
     else:
         fig = px.sunburst(dados, path=['crime', 'regiao', 'ano'], values='vitimas',
                           color='crime',
@@ -391,29 +433,23 @@ def CarolEQuirino(EscolhaChecklist = []):
 
     fig = go.Figure()
 
-
+    #caso a pessoa escolha a opção "Negros"
     if "N" in EscolhaChecklist:
+        #colocamos a linha de negros
         fig.add_trace(
             go.Bar(x=dicionario["Negros"]["ano"],
                    y=dicionario["Negros"]["homicidios"],
                    name='Negros',
                    marker=dict(color='rgb(244, 212, 77)')))  # aqui especificamos a cor e o tipo de grafico
-        fig.update_layout(barmode='group',
-                          plot_bgcolor="#161A28",
-                          paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
 
     if "NN" in EscolhaChecklist:
         fig.add_trace(go.Bar(x=dicionario["Não Negros"]["ano"],
                              y=dicionario["Não Negros"]["homicidios"],
                              name='Não negros',
                              marker=dict(color='rgb(146, 224, 211)')))  # aqui especificamos a cor e o tipo de grafico
-        fig.update_layout(barmode='group',
-                          plot_bgcolor="#161A28",
-                          paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
 
-
-    if len(EscolhaChecklist) == 2:
-        fig.update_layout(barmode='group',
+    
+    fig.update_layout(barmode='group',
                           plot_bgcolor="#161A28",
                           paper_bgcolor="rgba(0,0,0,0)")  # Aqui usamos o cod para juntar os dois graficos e criar uma comparação
 
@@ -440,6 +476,8 @@ def AnaEGuilherme(anoEscolhido = []):
 
     # coloca os elementos anteriores a 2021 em listas por categoria
     for linha in data1:
+
+        #caso a pessoa não escolha, colocamos todos
         if anoEscolhido == []:
             if linha[2] != 2021: # linha[2] = ano
                 uf.append(linha[0])
@@ -447,6 +485,7 @@ def AnaEGuilherme(anoEscolhido = []):
                 ano.append(linha[2])
                 ocorrencias.append(linha[4]) # linha[4] = ocorrencia
 
+        #caso a pessoa escolha algum, colocamos esses anos.
         else:
             if linha[2] != 2021 and linha[2] in anoEscolhido:
                 uf.append(linha[0])
@@ -632,15 +671,13 @@ app.layout = html.Div(
         ])
     ])
 
-
-
 @app.callback(
     Output(component_id="grafico_LL",component_property="figure"),
     Input(component_id="dropdown_LL",component_property="value")
 )
 def CallbackLL(value):
     if value == None:
-        return duplas["LL"]['funcao_grafico']()
+        return duplas["LL"]['funcao_grafico']([])
     else:
         return duplas["LL"]['funcao_grafico'](value)
 
